@@ -1,0 +1,1426 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IMPULS' TA MOB – atelier mobilité Pays Basque</title>
+<link rel="preconnect" href="https://unpkg.com">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+:root{
+  --ink:#132238;--muted:#64748b;--paper:#f5f7fa;--card:#fff;
+  --teal:#087e8b;--teal2:#0ea5a6;--gold:#f2b134;--coral:#e76f51;
+  --green:#2f855a;--purple:#7257b6;--line:#d9e2ec;--shadow:0 12px 35px rgba(19,34,56,.12);
+}
+*{box-sizing:border-box} body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--paper);color:var(--ink)}
+button,input,select,textarea{font:inherit} button{cursor:pointer}
+header{height:66px;background:linear-gradient(115deg,#10233d,#075f70);color:white;display:flex;align-items:center;gap:18px;padding:0 20px;box-shadow:0 2px 15px rgba(0,0,0,.2);position:relative;z-index:1001}
+.brand{display:flex;align-items:center;gap:12px;min-width:230px}.logo{width:40px;height:40px;border-radius:13px;background:var(--gold);display:grid;place-items:center;font-weight:900;color:#10233d}
+.brand h1{font-size:18px;margin:0}.brand small{display:block;opacity:.78;font-size:11px}
+.tabs{display:flex;gap:5px;flex:1;justify-content:center}.tab{border:0;background:transparent;color:white;padding:10px 13px;border-radius:10px;font-weight:700;opacity:.78}.tab.active,.tab:hover{background:rgba(255,255,255,.15);opacity:1}
+.header-actions{display:flex;gap:8px}.ghost{border:1px solid rgba(255,255,255,.35);background:transparent;color:white;padding:8px 11px;border-radius:10px}
+main{height:calc(100vh - 66px)} .panel{display:none;height:100%}.panel.active{display:block}
+#explore{grid-template-columns:370px 1fr}.panel.active#explore{display:grid}
+.sidebar{background:#fff;border-right:1px solid var(--line);overflow:auto;position:relative;z-index:500}
+.side-head{padding:18px;border-bottom:1px solid var(--line);position:sticky;top:0;background:#fff;z-index:3}
+.side-head h2{font-size:18px;margin:0 0 6px}.side-head p{font-size:12px;color:var(--muted);margin:0 0 12px;line-height:1.45}
+.search{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:12px}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:11px}.chip{border:1px solid var(--line);background:#fff;padding:6px 9px;border-radius:999px;font-size:11px}.chip.active{background:#e7f7f6;border-color:#8dd8d4;color:#075f70;font-weight:800}
+.switchline{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--muted);margin-top:10px}
+.results{padding:10px}.place-card{border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:9px;background:#fff;transition:.15s}.place-card:hover{transform:translateY(-1px);box-shadow:0 5px 20px rgba(19,34,56,.08);border-color:#9bcdd0}
+.place-top{display:flex;gap:9px;align-items:flex-start}.dot{width:12px;height:12px;border-radius:50%;margin-top:5px;flex:none}.place-card h3{font-size:13px;margin:0 0 4px}.place-card p{font-size:11px;color:var(--muted);margin:0;line-height:1.4}.count{font-size:10px;background:#eff4f7;padding:3px 7px;border-radius:10px;margin-left:auto;white-space:nowrap}
+#map{width:100%;height:100%}.leaflet-popup-content{min-width:275px}.popup h3{margin:0 0 5px;font-size:15px}.popup .addr{font-size:12px;color:#526171;margin-bottom:8px}.popup .tag{display:inline-block;font-size:10px;border-radius:999px;padding:3px 7px;background:#eaf5f5;margin:2px}.popup ul{padding-left:17px;font-size:11px;max-height:150px;overflow:auto}.popup-actions{display:flex;gap:6px;flex-wrap:wrap}.smallbtn{display:inline-block;border:0;border-radius:9px;padding:7px 9px;background:#0b7885;color:white;text-decoration:none;font-size:11px;font-weight:700}.smallbtn.alt{background:#eef3f5;color:#163047}
+.badge{display:inline-flex;align-items:center;border-radius:999px;padding:4px 8px;font-size:10px;font-weight:800}.ok{background:#e5f5eb;color:#25603d}.warn{background:#fff2d8;color:#8a5b00}.off{background:#f9e4e2;color:#91413a}
+.workspace{height:100%;overflow:auto;padding:24px}.wrap{max-width:1180px;margin:auto}.hero{background:linear-gradient(120deg,#10233d,#087e8b);color:white;border-radius:22px;padding:25px;box-shadow:var(--shadow);margin-bottom:18px}.hero h2{margin:0 0 7px;font-size:25px}.hero p{margin:0;max-width:800px;opacity:.87;line-height:1.5}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:0 5px 20px rgba(19,34,56,.05)}.card h3{margin:0 0 12px;font-size:16px}.card p,.help{font-size:12px;color:var(--muted);line-height:1.5}.col6{grid-column:span 6}.col12{grid-column:span 12}.col4{grid-column:span 4}.field{display:flex;flex-direction:column;gap:5px;margin-bottom:11px}.field label{font-size:11px;font-weight:800}.field input,.field select,.field textarea{border:1px solid var(--line);border-radius:11px;padding:10px;background:#fff}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.primary{border:0;background:var(--teal);color:#fff;padding:11px 15px;border-radius:11px;font-weight:800}.secondary{border:1px solid var(--line);background:#fff;color:var(--ink);padding:10px 14px;border-radius:11px;font-weight:700}
+.route-links{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.route-links a{text-decoration:none}
+.mode-table{width:100%;border-collapse:collapse;font-size:11px}.mode-table th,.mode-table td{border-bottom:1px solid var(--line);padding:8px 5px;text-align:left}.mode-table input[type=number]{width:65px;padding:6px;border:1px solid var(--line);border-radius:8px}.mode-table select{padding:6px;border:1px solid var(--line);border-radius:8px}.winner{background:#e8f7ef}.score{font-weight:900}
+.range-row{display:grid;grid-template-columns:110px 1fr 28px;gap:8px;align-items:center;font-size:11px;margin:7px 0}.range-row input{width:100%}
+.tipbox{background:#f0f8f8;border-left:4px solid var(--teal);padding:11px;border-radius:10px;font-size:12px;line-height:1.45}.inverse-list{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}.inverse{border:1px dashed #9bcdd0;border-radius:11px;padding:10px;font-size:11px;background:#fbfefe}
+.resource-list{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.res-card{border:1px solid var(--line);border-radius:14px;padding:13px;background:#fff}.res-card h4{margin:7px 0 5px;font-size:13px}.res-card p{font-size:11px;color:var(--muted);line-height:1.4}.res-card .num{font-size:10px;font-weight:900;color:var(--teal)}.res-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.contrib-list{margin-top:12px}.contrib{border:1px solid var(--line);border-radius:12px;padding:11px;margin:8px 0;background:#fff}.contrib h4{margin:0 0 4px;font-size:13px}.privacy{background:#fff8e5;border:1px solid #f3d38b;border-radius:12px;padding:11px;font-size:11px;line-height:1.45}
+.steps{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}.step{background:#fff;border:1px solid var(--line);border-radius:16px;padding:15px;position:relative}.step strong{font-size:26px;color:var(--teal);display:block}.step h3{font-size:13px;margin:4px 0}.step p{font-size:11px;color:var(--muted);line-height:1.45}.life{display:flex;flex-wrap:wrap;gap:8px}.life span{background:#e9f5f4;color:#075f70;padding:8px 11px;border-radius:999px;font-size:11px;font-weight:800}
+.notice{position:fixed;bottom:16px;right:16px;background:#10233d;color:white;padding:11px 14px;border-radius:12px;box-shadow:var(--shadow);font-size:12px;z-index:2000;display:none}
+.modal{position:fixed;inset:0;background:rgba(10,20,35,.55);display:none;align-items:center;justify-content:center;z-index:3000;padding:20px}.modal.show{display:flex}.modal-card{background:#fff;border-radius:20px;max-width:720px;width:100%;max-height:88vh;overflow:auto;padding:22px}.modal-close{float:right;border:0;background:#eef2f4;border-radius:10px;padding:7px 10px}
+
+/* Fond de carte et repères territoriaux */
+.leaflet-control-layers{
+  border:2px solid #111!important;
+  border-radius:12px!important;
+  box-shadow:4px 4px 0 rgba(17,17,17,.22)!important;
+  font-size:11px;
+}
+.leaflet-control-layers-expanded{
+  padding:8px 10px!important;
+  background:rgba(255,255,255,.96)!important;
+}
+.city-label-wrapper{
+  background:transparent!important;
+  border:0!important;
+}
+.city-label{
+  display:inline-block;
+  white-space:nowrap;
+  transform:translate(-50%,-50%);
+  padding:3px 7px;
+  border:1.5px solid rgba(16,35,61,.72);
+  border-radius:999px;
+  background:rgba(255,255,255,.88);
+  color:#10233d;
+  font-size:10px;
+  line-height:1;
+  font-weight:900;
+  letter-spacing:.01em;
+  box-shadow:2px 2px 0 rgba(16,35,61,.14);
+  pointer-events:none;
+}
+.leaflet-container{
+  background:#eaf0f2;
+}
+
+@media(max-width:900px){
+ header{height:auto;min-height:66px;flex-wrap:wrap;padding:10px}.tabs{order:3;width:100%;overflow:auto;justify-content:flex-start}
+ main{height:calc(100vh - 118px)} #explore.panel.active{grid-template-columns:1fr}.sidebar{height:43%;border-right:0;border-bottom:1px solid var(--line)}#map{height:57%}
+ .grid{display:block}.card{margin-bottom:12px}.resource-list{grid-template-columns:1fr}.steps{grid-template-columns:1fr 1fr}.row{grid-template-columns:1fr}
+ .mode-table{display:block;overflow-x:auto}.inverse-list{grid-template-columns:1fr}
+}
+
+/* ================================================================
+   CHARTE VISUELLE MLPB — inspiration « Bienvenue à la Mission Locale »
+   ================================================================ */
+:root{
+  --ml-black:#171717;--ml-white:#fff;--ml-orange:#ff9f0a;--ml-blue:#49a7d8;
+  --ml-green:#a6ce39;--ml-pink:#dc1763;--ml-teal:#087b8c;
+  --ink:#171717;--muted:#4d5661;--paper:#f7fafc;--card:#fff;--line:#171717;
+  --shadow:7px 7px 0 #171717;
+}
+html,body{height:100%}
+body{font-family:Arial,Helvetica,sans-serif;background:#fff;color:var(--ml-black);overflow:hidden}
+button,input,select,textarea{font-family:inherit}
+.app-header{height:198px;background:#fff;color:var(--ml-black);position:relative;z-index:1100;border-right:3px solid var(--ml-black);border-bottom:3px solid var(--ml-black);box-shadow:none;padding:0;display:block}
+.logo-row{height:96px;display:grid;grid-template-columns:minmax(250px,430px) 1fr minmax(210px,300px);align-items:center;gap:24px;padding:10px 30px;border-bottom:3px solid var(--ml-black);background:#fff}
+.mlpb-brand-logo{display:block;width:min(100%,415px);max-height:72px;object-fit:contain;object-position:left center}
+.eu-brand-logo{display:block;width:min(100%,235px);max-height:62px;object-fit:contain;object-position:right center;justify-self:end}
+.app-identity{text-align:center;min-width:0}
+.program-pill{display:inline-block;border:3px solid var(--ml-black);border-radius:999px;background:#fff;padding:6px 15px;font-weight:900;font-size:12px;letter-spacing:1.2px;box-shadow:4px 4px 0 var(--ml-black)}
+.app-name{font-family:Arial Black,Arial,Helvetica,sans-serif;font-size:34px;line-height:1;margin-top:9px;text-transform:uppercase;letter-spacing:-1.5px}
+.app-tagline{font-weight:800;font-size:12px;margin-top:4px}
+.journey-bar{height:99px;padding:10px 30px 9px;background:radial-gradient(circle at 97% 30%,rgba(73,167,216,.10) 0 70px,transparent 71px),radial-gradient(circle at 91% 90%,rgba(166,206,57,.10) 0 60px,transparent 61px),#f8fbfd}
+.journey-meta{display:flex;justify-content:space-between;align-items:center;font-family:Arial Black,Arial,sans-serif;font-size:15px;letter-spacing:.7px;text-transform:uppercase;margin-bottom:7px}
+.journey-progress{height:18px;border:3px solid var(--ml-black);border-radius:999px;background:#fff;overflow:hidden}
+.journey-progress-fill{height:100%;width:20%;border-right:3px solid var(--ml-black);background:linear-gradient(90deg,var(--ml-orange) 0 20%,var(--ml-blue) 20% 40%,var(--ml-green) 40% 60%,var(--ml-pink) 60% 80%,#ffffff 80% 100%);transition:width .35s ease}
+.navigation-row{display:flex;align-items:center;gap:14px;margin-top:8px}.tabs{display:flex;gap:9px;flex:1;justify-content:flex-start;overflow-x:auto;padding:0 0 4px}
+.tab{flex:0 0 auto;border:3px solid var(--ml-black);background:#fff;color:var(--ml-black);padding:8px 14px;border-radius:999px;font-family:Arial Black,Arial,sans-serif;font-size:12px;line-height:1;opacity:1;box-shadow:4px 4px 0 var(--ml-black);transition:transform .12s ease,box-shadow .12s ease,background .12s ease}
+.tab span{margin-right:5px}.tab:hover{background:#f3f6f8;transform:translate(1px,1px);box-shadow:3px 3px 0 var(--ml-black)}.tab.active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--ml-black);color:#171717}.tab:nth-child(1).active{background:var(--ml-orange)}.tab:nth-child(2).active{background:var(--ml-blue)}.tab:nth-child(3).active{background:var(--ml-green)}.tab:nth-child(4).active{background:var(--ml-pink);color:#fff}
+.header-actions{display:flex;gap:8px;flex:0 0 auto}.ghost{border:3px solid var(--ml-black);background:#fff;color:var(--ml-black);padding:8px 12px;border-radius:999px;font-family:Arial Black,Arial,sans-serif;font-size:11px;box-shadow:4px 4px 0 var(--ml-black)}.ghost:hover{background:var(--ml-black);color:#fff}
+main{height:calc(100vh - 198px);background:#f7fafc}.panel{height:100%}#explore{grid-template-columns:390px 1fr}
+.sidebar{background:#fff;border-right:3px solid var(--ml-black)}
+.side-head{padding:18px;border-bottom:3px solid var(--ml-black);background:linear-gradient(135deg,rgba(255,159,10,.20) 0 25%,rgba(73,167,216,.18) 25% 52%,rgba(166,206,57,.18) 52% 77%,rgba(220,23,99,.16) 77% 100%),#fff}
+.side-head h2{font-family:Arial Black,Arial,sans-serif;font-size:24px;line-height:1.05;margin:0 0 8px;text-transform:uppercase;letter-spacing:-.7px}.side-head p{font-size:12px;color:#252525;font-weight:700}
+.search,.field input,.field select,.field textarea{border:3px solid var(--ml-black);border-radius:14px;background:#fff;box-shadow:3px 3px 0 rgba(23,23,23,.85);outline:none}.search:focus,.field input:focus,.field select:focus,.field textarea:focus{box-shadow:3px 3px 0 var(--ml-blue)}
+.chip{border:2px solid var(--ml-black);background:#fff;padding:6px 10px;border-radius:999px;font-weight:800;box-shadow:2px 2px 0 var(--ml-black)}.chip.active{background:var(--ml-green);border-color:var(--ml-black);color:var(--ml-black);font-weight:900}.switchline{color:#242424;font-weight:700}
+.results{padding:12px;background:#f7fafc}.place-card{border:2.5px solid var(--ml-black);border-radius:16px;padding:12px;margin-bottom:11px;background:#fff;box-shadow:4px 4px 0 var(--ml-black)}.place-card:hover{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--ml-black);border-color:var(--ml-black)}.place-card h3{font-family:Arial Black,Arial,sans-serif;font-size:13px}.place-card p{color:#333;font-weight:600}.count{background:var(--ml-blue);color:#171717;border:2px solid var(--ml-black);font-weight:900}
+#map{border-left:0;background:#dceaf1}.leaflet-control-zoom a,.leaflet-control-attribution{border-color:var(--ml-black)!important}.leaflet-popup-content-wrapper{border:3px solid var(--ml-black);border-radius:17px;box-shadow:6px 6px 0 var(--ml-black)}.leaflet-popup-tip{border:2px solid var(--ml-black)}.popup h3{font-family:Arial Black,Arial,sans-serif;font-size:16px}.popup .addr{color:#333;font-weight:600}.popup .tag{background:var(--ml-green);border:1px solid var(--ml-black);font-weight:800}
+.workspace{padding:28px;background:linear-gradient(135deg,rgba(255,159,10,.13) 0 18%,transparent 18% 42%),linear-gradient(135deg,transparent 0 35%,rgba(73,167,216,.12) 35% 58%,transparent 58%),linear-gradient(135deg,transparent 0 55%,rgba(166,206,57,.13) 55% 78%,transparent 78%),linear-gradient(135deg,transparent 0 76%,rgba(220,23,99,.10) 76% 100%),#f8fbfd}.wrap{max-width:1220px}
+.hero{position:relative;overflow:hidden;background:linear-gradient(135deg,var(--ml-orange) 0 23%,var(--ml-blue) 23% 50%,var(--ml-green) 50% 77%,var(--ml-pink) 77% 100%);color:var(--ml-black);border:3px solid var(--ml-black);border-radius:20px;padding:28px 30px;box-shadow:8px 8px 0 var(--ml-black);margin-bottom:24px}.hero:after{content:"";position:absolute;right:5%;top:18%;width:170px;height:110px;border:3px solid rgba(23,23,23,.38);border-radius:36px;transform:rotate(16deg);background:rgba(255,255,255,.13)}.hero h2{position:relative;z-index:1;display:inline;box-decoration-break:clone;-webkit-box-decoration-break:clone;background:var(--ml-black);color:#fff;padding:4px 12px;border-radius:10px;font-family:Arial Black,Arial,sans-serif;font-size:31px;line-height:1.36;letter-spacing:-1.2px;box-shadow:6px 6px 0 rgba(255,255,255,.75)}.hero p{position:relative;z-index:1;color:#171717;opacity:1;max-width:840px;font-size:14px;font-weight:900;line-height:1.45;margin-top:18px}
+.grid{gap:20px}.card{background:#fff;border:3px solid var(--ml-black);border-radius:18px;padding:19px;box-shadow:6px 6px 0 var(--ml-black)}.card h3{font-family:Arial Black,Arial,sans-serif;font-size:17px;text-transform:uppercase;letter-spacing:-.2px}.card p,.help{color:#343434;font-weight:600}
+.primary,.secondary,.smallbtn{border:3px solid var(--ml-black);border-radius:999px;font-family:Arial Black,Arial,sans-serif;font-weight:900;box-shadow:4px 4px 0 var(--ml-black);transition:.12s ease}.primary{background:var(--ml-orange);color:var(--ml-black)}.secondary{background:#fff;color:var(--ml-black)}.primary:hover,.secondary:hover,.smallbtn:hover{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--ml-black)}.smallbtn{background:var(--ml-blue);color:var(--ml-black);padding:7px 10px}.smallbtn.alt{background:#fff;color:var(--ml-black)}
+.tipbox{background:#f4fae8;border:3px solid var(--ml-black);border-left:12px solid var(--ml-green);border-radius:14px;font-weight:700}.inverse{border:2px dashed var(--ml-black);border-radius:14px;background:#fff9e9;font-weight:700}.mode-table th{font-family:Arial Black,Arial,sans-serif;background:#edf5f8}.mode-table th,.mode-table td{border-bottom:2px solid var(--ml-black)}.mode-table input[type=number],.mode-table select{border:2px solid var(--ml-black);border-radius:9px}.winner{background:#dff3bd}
+.res-card,.contrib{border:2.5px solid var(--ml-black);border-radius:15px;box-shadow:4px 4px 0 var(--ml-black)}.res-card h4,.contrib h4{font-family:Arial Black,Arial,sans-serif}.res-card .num{color:#fff;background:var(--ml-black);padding:4px 7px;border-radius:999px}.privacy{background:#fff4d8;border:3px solid var(--ml-black);border-left:12px solid var(--ml-orange);font-weight:700}
+.step{border:3px solid var(--ml-black);border-radius:17px;box-shadow:5px 5px 0 var(--ml-black)}.step:nth-child(1){background:#fff0d8}.step:nth-child(2){background:#e3f3fb}.step:nth-child(3){background:#edf7d4}.step:nth-child(4){background:#f9dce9}.step:nth-child(5){background:#fff}.step strong{font-family:Arial Black,Arial,sans-serif;color:var(--ml-black)}.step h3{font-family:Arial Black,Arial,sans-serif}.life span{border:2px solid var(--ml-black);background:#fff;border-radius:999px;color:var(--ml-black);box-shadow:2px 2px 0 var(--ml-black)}
+.badge{border:1px solid var(--ml-black)}.notice{background:var(--ml-pink);border:3px solid var(--ml-black);color:#fff;border-radius:14px;box-shadow:5px 5px 0 var(--ml-black);font-weight:900}.modal{background:rgba(23,23,23,.72)}.modal-card{border:3px solid var(--ml-black);border-radius:20px;box-shadow:8px 8px 0 var(--ml-black)}.modal-close{border:2px solid var(--ml-black);background:#fff;box-shadow:3px 3px 0 var(--ml-black);font-weight:900}
+@media(max-width:1000px){.app-header{height:224px}.logo-row{grid-template-columns:1fr auto;height:92px;padding:9px 15px}.app-identity{display:none}.mlpb-brand-logo{max-height:62px}.eu-brand-logo{width:165px;max-height:50px}.journey-bar{height:132px;padding:9px 15px}.navigation-row{align-items:flex-start}.tabs{gap:8px}.header-actions{flex-direction:column}.ghost{padding:7px 10px}.tab{font-size:11px;padding:8px 11px}main{height:calc(100vh - 224px)}#explore.panel.active{grid-template-columns:350px 1fr}}
+@media(max-width:760px){body{overflow:auto}.app-header{height:auto;min-height:252px;border-right:0}.logo-row{height:78px;grid-template-columns:1fr 120px;gap:8px;padding:8px 10px}.mlpb-brand-logo{max-height:55px}.eu-brand-logo{width:120px;max-height:44px}.journey-bar{height:auto;padding:8px 10px 10px}.journey-meta{font-size:12px}.navigation-row{display:block}.tabs{padding-bottom:7px}.header-actions{display:none}main{height:calc(100vh - 245px);min-height:610px}#explore.panel.active{grid-template-columns:1fr}.sidebar{height:46%;border-right:0;border-bottom:3px solid var(--ml-black)}#map{height:54%}.workspace{padding:16px}.hero h2{font-size:24px}.hero p{font-size:12px}.steps{grid-template-columns:1fr}.resource-list{grid-template-columns:1fr}.card{box-shadow:4px 4px 0 var(--ml-black)}}
+
+
+/* ------------------------------------------------------------------
+   QUIZ INTRODUCTIF
+------------------------------------------------------------------ */
+.quiz-workspace{
+  height:100%;
+  overflow:auto;
+  padding:25px;
+  background:
+    linear-gradient(135deg,rgba(247,152,30,.16) 0 16%,transparent 16% 100%),
+    linear-gradient(315deg,rgba(216,30,104,.12) 0 14%,transparent 14% 100%),
+    #f5f7fa;
+}
+.quiz-shell{max-width:1180px;margin:0 auto;padding-bottom:30px}
+.quiz-kicker{
+  display:inline-flex;
+  padding:7px 13px;
+  border:3px solid var(--ml-black);
+  border-radius:999px;
+  background:var(--ml-orange);
+  color:var(--ml-black);
+  box-shadow:4px 4px 0 var(--ml-black);
+  font-family:Arial Black,Arial,sans-serif;
+  font-size:11px;
+  letter-spacing:.5px;
+}
+.quiz-heading{
+  display:grid;
+  grid-template-columns:1fr 105px;
+  gap:18px;
+  align-items:center;
+  margin:22px 0;
+  padding:24px 27px;
+  border:3px solid var(--ml-black);
+  border-radius:22px;
+  background:#fff;
+  box-shadow:8px 8px 0 var(--ml-black);
+}
+.quiz-heading h2{
+  margin:0 0 9px;
+  font-family:Arial Black,Arial,sans-serif;
+  font-size:clamp(25px,3vw,42px);
+  line-height:1.05;
+  letter-spacing:-1.2px;
+}
+.quiz-heading p{
+  max-width:850px;
+  margin:0;
+  color:#4c5968;
+  font-size:14px;
+  line-height:1.55;
+}
+.quiz-bolt{
+  width:88px;height:88px;
+  display:grid;place-items:center;
+  border:3px solid var(--ml-black);
+  border-radius:50%;
+  background:var(--ml-green);
+  box-shadow:6px 6px 0 var(--ml-black);
+  font-size:45px;
+  transform:rotate(-7deg);
+}
+.quiz-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.quiz-card{
+  position:relative;
+  min-height:345px;
+  padding:25px;
+  border:3px solid var(--ml-black);
+  border-radius:20px;
+  box-shadow:7px 7px 0 var(--ml-black);
+}
+.quiz-launch-card{background:#e3f3fb}
+.quiz-reflection-card{background:#edf7d4}
+.quiz-step-number{
+  position:absolute;
+  top:17px;right:18px;
+  width:43px;height:43px;
+  display:grid;place-items:center;
+  border:3px solid var(--ml-black);
+  border-radius:50%;
+  background:#fff;
+  font-family:Arial Black,Arial,sans-serif;
+  font-size:20px;
+}
+.quiz-card h3{
+  padding-right:55px;
+  margin:0 0 10px;
+  font-family:Arial Black,Arial,sans-serif;
+  font-size:22px;
+}
+.quiz-card p{margin:0 0 19px;color:#465361;font-size:13px;line-height:1.55}
+.quiz-actions{display:flex;flex-wrap:wrap;gap:10px;margin:21px 0 16px}
+.quiz-main-button,.quiz-secondary-button,.quiz-next-button{
+  border:3px solid var(--ml-black);
+  border-radius:13px;
+  padding:12px 16px;
+  box-shadow:4px 4px 0 var(--ml-black);
+  font-weight:900;
+  text-decoration:none;
+  transition:transform .12s ease,box-shadow .12s ease;
+}
+.quiz-main-button:hover,.quiz-secondary-button:hover,.quiz-next-button:not(:disabled):hover{
+  transform:translate(2px,2px);
+  box-shadow:2px 2px 0 var(--ml-black);
+}
+.quiz-main-button{background:var(--ml-blue);color:#fff}
+.quiz-secondary-button{background:#fff;color:var(--ml-black)}
+.quiz-technical-note{
+  padding:12px;
+  border:2px dashed var(--ml-black);
+  border-radius:12px;
+  background:rgba(255,255,255,.67);
+  color:#4a5663;
+  font-size:11px;
+  line-height:1.5;
+}
+.quiz-label{
+  display:block;
+  margin:13px 0 6px;
+  font-size:11px;
+  font-weight:900;
+}
+.quiz-card textarea,.quiz-card select{
+  width:100%;
+  border:2px solid var(--ml-black);
+  border-radius:11px;
+  padding:10px;
+  background:#fff;
+}
+.quiz-check{
+  display:flex;
+  align-items:flex-start;
+  gap:9px;
+  margin:16px 0;
+  padding:11px;
+  border:2px solid var(--ml-black);
+  border-radius:12px;
+  background:#fff;
+  font-size:12px;
+  font-weight:800;
+  line-height:1.4;
+}
+.quiz-check input{width:19px;height:19px;flex:none}
+.quiz-next-button{width:100%;background:var(--ml-pink);color:#fff}
+.quiz-next-button:disabled{
+  background:#cbd2d8;color:#65717d;
+  box-shadow:none;
+  cursor:not-allowed;
+  opacity:.75;
+}
+.quiz-frame-wrap{
+  margin-top:22px;
+  overflow:hidden;
+  border:3px solid var(--ml-black);
+  border-radius:19px;
+  background:#fff;
+  box-shadow:7px 7px 0 var(--ml-black);
+}
+.quiz-frame-head{
+  display:flex;justify-content:space-between;align-items:center;
+  gap:12px;padding:12px 15px;
+  border-bottom:3px solid var(--ml-black);
+  background:#fff0d8;
+}
+.quiz-frame-head strong{display:block;font-family:Arial Black,Arial,sans-serif}
+.quiz-frame-head span{display:block;color:#5b6570;font-size:11px;margin-top:2px}
+.quiz-frame-head button{
+  width:35px;height:35px;border:2px solid var(--ml-black);
+  border-radius:10px;background:#fff;font-weight:900;
+}
+#quizFrame{display:block;width:100%;height:620px;border:0;background:#f4f5f6}
+.quiz-facilitator{
+  display:flex;gap:10px;align-items:flex-start;
+  margin-top:22px;padding:15px 17px;
+  border:3px solid var(--ml-black);
+  border-radius:15px;
+  background:#f9dce9;
+  box-shadow:5px 5px 0 var(--ml-black);
+  font-size:12px;line-height:1.5;
+}
+.quiz-facilitator strong{white-space:nowrap;font-family:Arial Black,Arial,sans-serif}
+@media(max-width:850px){
+  .quiz-grid{grid-template-columns:1fr}
+  .quiz-heading{grid-template-columns:1fr 70px;padding:20px}
+  .quiz-bolt{width:65px;height:65px;font-size:32px}
+  .quiz-card{min-height:0}
+}
+@media(max-width:580px){
+  .quiz-workspace{padding:14px}
+  .quiz-heading{display:block}
+  .quiz-bolt{display:none}
+  .quiz-heading h2{font-size:26px}
+  .quiz-actions{display:grid}
+  .quiz-main-button,.quiz-secondary-button{text-align:center}
+  .quiz-facilitator{display:block}
+  .quiz-facilitator strong{display:block;margin-bottom:6px;white-space:normal}
+  #quizFrame{height:520px}
+}
+
+
+/* ------------------------------------------------------------------
+   QUIZ NATIF IMPULS' TA MOB
+------------------------------------------------------------------ */
+.native-quiz-workspace{
+  height:100%;
+  overflow:auto;
+  padding:25px;
+  background:
+    linear-gradient(135deg,rgba(247,152,30,.18) 0 17%,transparent 17% 100%),
+    linear-gradient(315deg,rgba(216,30,104,.13) 0 15%,transparent 15% 100%),
+    #f5f7fa;
+}
+.native-quiz-shell{max-width:1120px;margin:0 auto;padding-bottom:32px}
+.native-quiz-kicker,.native-card-label{
+  display:inline-flex;
+  padding:7px 13px;
+  border:3px solid var(--ml-black);
+  border-radius:999px;
+  background:var(--ml-orange);
+  color:var(--ml-black);
+  box-shadow:4px 4px 0 var(--ml-black);
+  font-family:Arial Black,Arial,sans-serif;
+  font-size:10px;
+  letter-spacing:.5px;
+}
+.native-card-label{padding:5px 9px;box-shadow:2px 2px 0 var(--ml-black);background:#fff}
+.native-quiz-heading{
+  display:grid;
+  grid-template-columns:1fr 105px;
+  gap:18px;
+  align-items:center;
+  margin:22px 0;
+  padding:24px 27px;
+  border:3px solid var(--ml-black);
+  border-radius:22px;
+  background:#fff;
+  box-shadow:8px 8px 0 var(--ml-black);
+}
+.native-quiz-heading h2{
+  margin:0 0 9px;
+  font-family:Arial Black,Arial,sans-serif;
+  font-size:clamp(28px,4vw,46px);
+  line-height:1.02;
+  letter-spacing:-1.5px;
+}
+.native-quiz-heading p{max-width:850px;margin:0;color:#4c5968;font-size:14px;line-height:1.55}
+.native-quiz-bolt{
+  width:88px;height:88px;display:grid;place-items:center;
+  border:3px solid var(--ml-black);border-radius:50%;
+  background:var(--ml-green);box-shadow:6px 6px 0 var(--ml-black);
+  font-size:45px;transform:rotate(-7deg);
+}
+.native-quiz-screen{display:none}
+.native-quiz-screen.active{display:block}
+.native-start-grid,.native-result-grid{display:grid;grid-template-columns:1.25fr .75fr;gap:20px}
+.native-start-card,.native-result-score-card,.native-result-detail-card,.native-question-card{
+  border:3px solid var(--ml-black);
+  border-radius:20px;
+  box-shadow:7px 7px 0 var(--ml-black);
+}
+.native-start-card{padding:26px}
+.native-start-main{background:#e3f3fb}
+.native-start-side{background:#edf7d4}
+.native-start-card h3,.native-result-score-card h3,.native-result-detail-card h3,.native-question-card h3{
+  margin:16px 0 10px;font-family:Arial Black,Arial,sans-serif;line-height:1.12
+}
+.native-start-card h3{font-size:28px}
+.native-start-card p,.native-result-detail-card>p,.native-result-score-card p{
+  color:#45525f;font-size:13px;line-height:1.55
+}
+.native-quiz-features{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:20px 0}
+.native-quiz-features span{
+  padding:10px;border:2px solid var(--ml-black);border-radius:11px;background:#fff;
+  font-size:11px;font-weight:900
+}
+.native-use-mode{display:grid;grid-template-columns:88px 1fr;gap:10px;padding:12px 0;border-bottom:2px dashed rgba(23,23,23,.35)}
+.native-use-mode strong{font-family:Arial Black,Arial,sans-serif}
+.native-use-mode span{font-size:11px;line-height:1.4;color:#465361}
+.native-privacy-note{margin-top:15px;padding:11px;border:2px dashed var(--ml-black);border-radius:11px;background:#fff;font-size:10px;line-height:1.45}
+.native-main-button,.native-secondary-button,.native-next-button{
+  border:3px solid var(--ml-black);border-radius:13px;padding:12px 16px;
+  box-shadow:4px 4px 0 var(--ml-black);font-weight:900;
+  transition:transform .12s ease,box-shadow .12s ease
+}
+.native-main-button{background:var(--ml-pink);color:#fff}
+.native-secondary-button{background:#fff;color:var(--ml-black)}
+.native-next-button{background:var(--ml-blue);color:var(--ml-black)}
+.native-main-button:hover,.native-secondary-button:hover,.native-next-button:not(:disabled):hover{
+  transform:translate(2px,2px);box-shadow:2px 2px 0 var(--ml-black)
+}
+.native-next-button:disabled{background:#cbd2d8;color:#66717b;box-shadow:none;cursor:not-allowed}
+.native-quiz-toolbar{
+  display:flex;align-items:center;justify-content:space-between;gap:15px;
+  padding:14px 17px;border:3px solid var(--ml-black);border-radius:16px 16px 0 0;background:#fff
+}
+.native-quiz-toolbar span{display:block;font-size:11px;font-weight:900}
+.native-quiz-toolbar strong{display:block;margin-top:2px;font-family:Arial Black,Arial,sans-serif}
+.native-score-live{
+  padding:8px 12px;border:2px solid var(--ml-black);border-radius:999px;background:var(--ml-orange);
+  font-size:11px;font-weight:900;white-space:nowrap
+}
+.native-progress-track{height:13px;border-left:3px solid var(--ml-black);border-right:3px solid var(--ml-black);background:#fff}
+.native-progress-fill{height:100%;width:12.5%;background:linear-gradient(90deg,var(--ml-orange),var(--ml-pink));transition:width .25s ease}
+.native-question-card{padding:27px;background:#fff;border-radius:0 0 20px 20px}
+.native-question-card h3{font-size:clamp(21px,3vw,30px);margin-top:0;max-width:900px}
+.native-answer-list{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:21px}
+.native-answer{
+  width:100%;min-height:76px;text-align:left;padding:13px 14px;
+  border:3px solid var(--ml-black);border-radius:13px;background:#f8fafb;
+  box-shadow:3px 3px 0 var(--ml-black);font-weight:800;line-height:1.38;
+  transition:transform .12s ease,background .12s ease
+}
+.native-answer:hover:not(:disabled){transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ml-black);background:#fff1da}
+.native-answer:disabled{cursor:default}
+.native-answer.correct{background:#dff3bd}
+.native-answer.incorrect{background:#f7cbdc}
+.native-answer.reveal-correct{outline:4px solid var(--ml-green);outline-offset:-6px}
+.native-answer-letter{
+  display:inline-grid;place-items:center;width:27px;height:27px;margin-right:8px;
+  border:2px solid var(--ml-black);border-radius:50%;background:#fff;
+  font-family:Arial Black,Arial,sans-serif;font-size:11px;vertical-align:middle
+}
+.native-feedback{
+  margin-top:18px;padding:14px 16px;border:3px solid var(--ml-black);border-radius:13px;background:#edf7d4
+}
+.native-feedback.incorrect{background:#fff0d8}
+.native-feedback-title{font-family:Arial Black,Arial,sans-serif;font-size:14px}
+.native-feedback p{margin:5px 0 0;color:#3f4d59;font-size:12px;line-height:1.5}
+.native-question-actions{display:flex;justify-content:space-between;gap:12px;margin-top:20px}
+.native-result-score-card{padding:28px;background:#e3f3fb;text-align:center}
+.native-score-circle{
+  width:175px;height:175px;margin:0 auto 22px;display:grid;place-content:center;
+  border:4px solid var(--ml-black);border-radius:50%;background:var(--ml-orange);
+  box-shadow:7px 7px 0 var(--ml-black)
+}
+.native-score-circle strong{display:block;font-family:Arial Black,Arial,sans-serif;font-size:35px}
+.native-score-circle span{display:block;font-size:10px;font-weight:900;text-transform:uppercase}
+.native-result-score-card h3{font-size:26px}
+.native-result-detail-card{padding:25px;background:#edf7d4}
+.native-priority-list{display:grid;gap:9px;margin:16px 0 19px}
+.native-priority{
+  padding:11px 12px;border:2px solid var(--ml-black);border-radius:11px;background:#fff;
+  font-size:11px;line-height:1.4
+}
+.native-priority strong{display:block;margin-bottom:3px;font-family:Arial Black,Arial,sans-serif}
+.native-field-label{display:block;margin:14px 0 6px;font-size:11px;font-weight:900}
+#nativeQuizNeed{width:100%;padding:11px;border:2px solid var(--ml-black);border-radius:11px;background:#fff}
+.native-result-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:17px}
+.native-facilitator{
+  display:flex;gap:10px;align-items:flex-start;margin-top:22px;padding:15px 17px;
+  border:3px solid var(--ml-black);border-radius:15px;background:#f9dce9;
+  box-shadow:5px 5px 0 var(--ml-black);font-size:12px;line-height:1.5
+}
+.native-facilitator strong{white-space:nowrap;font-family:Arial Black,Arial,sans-serif}
+@media(max-width:850px){
+  .native-start-grid,.native-result-grid{grid-template-columns:1fr}
+  .native-answer-list{grid-template-columns:1fr}
+  .native-quiz-heading{grid-template-columns:1fr 70px;padding:20px}
+  .native-quiz-bolt{width:65px;height:65px;font-size:32px}
+}
+@media(max-width:580px){
+  .native-quiz-workspace{padding:14px}
+  .native-quiz-heading{display:block}
+  .native-quiz-bolt{display:none}
+  .native-quiz-heading h2{font-size:29px}
+  .native-quiz-features{grid-template-columns:1fr}
+  .native-question-card{padding:18px}
+  .native-question-actions,.native-result-actions{display:grid}
+  .native-question-actions button,.native-result-actions button{width:100%}
+  .native-facilitator{display:block}
+  .native-facilitator strong{display:block;margin-bottom:6px;white-space:normal}
+  .native-quiz-toolbar{align-items:flex-start}
+}
+
+
+/* Correction de la navigation principale */
+.app-header,
+.journey-bar,
+.navigation-row,
+.tabs,
+.tab,
+.header-actions,
+.ghost{
+  pointer-events:auto!important;
+}
+.tabs,.header-actions{
+  position:relative;
+  z-index:1205;
+}
+.tab,.ghost{
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+  cursor:pointer!important;
+}
+
+
+/* Navigation robuste sans dépendance JavaScript */
+.tab{
+  text-decoration:none;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  z-index:5000;
+  pointer-events:auto!important;
+}
+.panel:target{
+  display:block!important;
+}
+#explore:target{
+  display:grid!important;
+}
+main:has(.panel:target) .panel.active:not(:target){
+  display:none!important;
+}
+main:has(#intro:target) #intro,
+main:has(#challenge:target) #challenge,
+main:has(#share:target) #share,
+main:has(#workshop:target) #workshop{
+  display:block!important;
+}
+main:has(#explore:target) #explore{
+  display:grid!important;
+}
+
+</style>
+</head>
+<body>
+<header class="app-header">
+ <div class="logo-row">
+  <img class="mlpb-brand-logo" src="data:image/png;base64,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" alt="Mission Locale Pays Basque – Nouvelle-Aquitaine, labellisée 2024-2028">
+  <div class="app-identity">
+   <span class="program-pill">MLPB × IMPULS' TA MOB</span>
+   <div class="app-name">IMPULS' TA MOB</div>
+   <div class="app-tagline">Connaître le territoire · choisir · partager · coopérer</div>
+  </div>
+  <img class="eu-brand-logo" src="data:image/png;base64,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" alt="Cofinancé par l’Union européenne">
+ </div>
+ <div class="journey-bar">
+  <div class="journey-meta"><strong id="stepLabel">ÉTAPE 1 / 5</strong><strong id="stepName">QUIZ D’ENTRÉE</strong></div>
+  <div class="journey-progress" aria-label="Progression dans l’atelier"><div id="progressFill" class="journey-progress-fill"></div></div>
+  <div class="navigation-row">
+   <nav class="tabs" aria-label="Navigation principale">
+    <a class="tab active" data-tab="intro" href="#intro"><span>⚡</span> Quiz d’entrée</a>
+    <a class="tab" data-tab="explore" href="#explore"><span>🗺️</span> Explorer</a>
+    <a class="tab" data-tab="challenge" href="#challenge"><span>🧭</span> Défi itinéraire</a>
+    <a class="tab" data-tab="share" href="#share"><span>🤝</span> Réseau de soutien</a>
+    <a class="tab" data-tab="workshop" href="#workshop"><span>🎯</span> Mode atelier</a>
+   </nav>
+   <div class="header-actions"><button class="ghost" id="exportBtn">Exporter</button><button class="ghost" id="helpBtn">Aide</button></div>
+  </div>
+ </div>
+</header>
+<main>
+
+
+<section id="intro" class="panel active">
+ <div class="native-quiz-workspace">
+  <div class="native-quiz-shell">
+   <div class="native-quiz-kicker">ACTIVITÉ INTRODUCTIVE · 8 SITUATIONS · 5 À 10 MINUTES</div>
+
+   <div class="native-quiz-heading">
+    <div>
+     <h2>Teste tes réflexes mobilité</h2>
+     <p>Un quiz rapide, directement intégré à IMPULS’ TA MOB. Aucun compte, aucune inscription et aucune donnée envoyée : tu réponds, tu découvres les explications et tu identifies les sujets à approfondir pendant l’atelier.</p>
+    </div>
+    <div class="native-quiz-bolt" aria-hidden="true">⚡</div>
+   </div>
+
+   <section class="native-quiz-screen active" id="nativeQuizStart">
+    <div class="native-start-grid">
+     <article class="native-start-card native-start-main">
+      <span class="native-card-label">POUR COMMENCER</span>
+      <h3>Es-tu prêt à organiser tes déplacements autrement&nbsp;?</h3>
+      <p>Le quiz présente huit situations proches de la vie quotidienne : emploi, formation, transport rural, vélo, covoiturage, imprévu et mobilité inversée.</p>
+
+      <div class="native-quiz-features">
+       <span>✓ Sans compte</span>
+       <span>✓ Utilisable sur téléphone</span>
+       <span>✓ Explication après chaque réponse</span>
+       <span>✓ Résultat non évaluatif</span>
+      </div>
+
+      <button class="native-main-button" id="nativeQuizStartButton" type="button">
+       Commencer le quiz →
+      </button>
+     </article>
+
+     <article class="native-start-card native-start-side">
+      <span class="native-card-label">MODE D’UTILISATION</span>
+      <div class="native-use-mode"><strong>Seul</strong><span>Je teste mes connaissances et mes réflexes.</span></div>
+      <div class="native-use-mode"><strong>En binôme</strong><span>Nous discutons avant de choisir une réponse.</span></div>
+      <div class="native-use-mode"><strong>En groupe</strong><span>Chaque équipe argumente son choix avant la correction.</span></div>
+      <div class="native-privacy-note">Les réponses restent uniquement dans le navigateur de cet appareil. Le bouton « Recommencer » permet d’effacer le résultat.</div>
+     </article>
+    </div>
+   </section>
+
+   <section class="native-quiz-screen" id="nativeQuizPlay" aria-live="polite">
+    <div class="native-quiz-toolbar">
+     <div>
+      <span id="nativeQuizCounter">Question 1 sur 8</span>
+      <strong id="nativeQuizTheme">Planifier un trajet</strong>
+     </div>
+     <div class="native-score-live">Score : <strong id="nativeQuizLiveScore">0</strong></div>
+    </div>
+
+    <div class="native-progress-track" aria-hidden="true">
+     <div class="native-progress-fill" id="nativeQuizProgress"></div>
+    </div>
+
+    <article class="native-question-card">
+     <h3 id="nativeQuizQuestion"></h3>
+     <div class="native-answer-list" id="nativeQuizAnswers"></div>
+
+     <div class="native-feedback" id="nativeQuizFeedback" hidden>
+      <div class="native-feedback-title" id="nativeQuizFeedbackTitle"></div>
+      <p id="nativeQuizFeedbackText"></p>
+     </div>
+
+     <div class="native-question-actions">
+      <button class="native-secondary-button" id="nativeQuizQuit" type="button">Revenir au début</button>
+      <button class="native-next-button" id="nativeQuizNext" type="button" disabled>Question suivante →</button>
+     </div>
+    </article>
+   </section>
+
+   <section class="native-quiz-screen" id="nativeQuizResult" aria-live="polite">
+    <div class="native-result-grid">
+     <article class="native-result-score-card">
+      <div class="native-score-circle">
+       <strong id="nativeQuizFinalScore">0/8</strong>
+       <span>réflexes activés</span>
+      </div>
+      <span class="native-card-label">TON PROFIL DU JOUR</span>
+      <h3 id="nativeQuizProfile"></h3>
+      <p id="nativeQuizProfileText"></p>
+     </article>
+
+     <article class="native-result-detail-card">
+      <h3>Mes prochaines pistes</h3>
+      <p>Le résultat n’est pas une note. Il sert à choisir les sujets à explorer pendant l’atelier.</p>
+      <div id="nativeQuizPriorities" class="native-priority-list"></div>
+
+      <label class="native-field-label" for="nativeQuizNeed">Le besoin que je souhaite travailler en priorité</label>
+      <select id="nativeQuizNeed">
+       <option value="">Choisir une priorité</option>
+       <option>Connaître les transports disponibles autour de moi</option>
+       <option>Préparer un trajet vers un emploi ou une formation</option>
+       <option>Réduire le coût de mes déplacements</option>
+       <option>Apprendre, reprendre ou réparer un vélo</option>
+       <option>Trouver une solution en zone rurale</option>
+       <option>Partager un trajet ou mobiliser mon réseau</option>
+       <option>Préparer un plan B</option>
+       <option>Rechercher une solution de mobilité inversée</option>
+      </select>
+
+      <div class="native-result-actions">
+       <button class="native-secondary-button" id="nativeQuizRestart" type="button">Recommencer</button>
+       <button class="native-main-button" id="nativeQuizGoMap" type="button">Explorer les solutions sur la carte →</button>
+      </div>
+     </article>
+    </div>
+   </section>
+
+   <div class="native-facilitator">
+    <strong>Débrief collectif :</strong>
+    <span>Qu’est-ce qui dépend de moi ? Qu’est-ce qui peut être combiné ou partagé ? Qu’est-ce que l’employeur, la formation ou le service pourrait organiser autrement ?</span>
+   </div>
+  </div>
+ </div>
+</section>
+
+<section id="explore" class="panel">
+ <aside class="sidebar">
+  <div class="side-head">
+   <h2>Où puis-je agir ?</h2>
+   <p>La carte utilise un fond clair avec les <strong>villes principales et les grands axes</strong>. Elle présente uniquement les opérateurs, infrastructures et structures directement liés à la mobilité.</p>
+   <input class="search" id="searchInput" placeholder="Rechercher un lieu, une aide, une commune…">
+   <div class="chips" id="categoryChips"></div>
+   <label class="switchline"><input type="checkbox" id="showVerify"> Afficher les ressources à vérifier</label>
+  </div>
+  <div class="results" id="placeList"></div>
+ </aside>
+ <div id="map"></div>
+</section>
+
+<section id="challenge" class="panel">
+ <div class="workspace"><div class="wrap">
+  <div class="hero"><h2>Trouver le meilleur trajet, pas seulement le plus rapide</h2><p>Les jeunes recherchent les informations réelles dans les outils disponibles, complètent la grille, puis argumentent leur choix selon leurs priorités et leurs contraintes.</p></div>
+  <div class="grid">
+   <div class="card col6">
+    <h3>1. Ma situation</h3>
+    <div class="field"><label>Départ</label><input id="routeStart" placeholder="Adresse, commune ou lieu de vie"></div>
+    <div class="field"><label>Destination emploi / formation</label><input id="routeEnd" placeholder="Adresse de l’entreprise ou de la formation"></div>
+    <div class="row">
+     <div class="field"><label>Heure d’arrivée souhaitée</label><input type="time" id="arrivalTime" value="08:30"></div>
+     <div class="field"><label>Budget aller maximum</label><input type="number" id="maxBudget" value="5" min="0" step=".5"></div>
+    </div>
+    <div class="field"><label>Contraintes</label>
+     <select id="constraint">
+      <option value="">Aucune contrainte particulière</option>
+      <option>Je n’ai pas le permis</option><option>Je n’ai pas de voiture</option>
+      <option>Je commence très tôt ou termine tard</option><option>Je vis en zone rurale</option>
+      <option>J’ai une mobilité réduite</option><option>Je transporte du matériel</option>
+     </select>
+    </div>
+    <button class="primary" id="makeLinks">Ouvrir les outils d’itinéraire</button>
+    <div class="route-links" id="routeLinks"></div>
+    <div class="tipbox" style="margin-top:13px"><strong>Règle du jeu :</strong> chaque groupe doit vérifier l’heure du premier départ, le dernier retour, le temps de marche, le coût réel et une solution de secours.</div>
+   </div>
+   <div class="card col6">
+    <h3>2. Ce qui compte pour moi</h3>
+    <div id="weights"></div>
+    <div class="tipbox" style="margin-top:12px">Les critères sont discutés en groupe : autonomie, ponctualité, budget, fatigue, sécurité, impact environnemental et fiabilité.</div>
+    <h3 style="margin-top:18px">Mobilité inversée</h3>
+    <p>Avant de conclure que « le jeune doit se déplacer », le groupe recherche ce qui peut être rapproché ou organisé autrement.</p>
+    <div class="inverse-list">
+     <div class="inverse">Permanence Mission Locale plus proche</div><div class="inverse">Entretien en visio ou dans un tiers-lieu</div>
+     <div class="inverse">TAD vers une correspondance</div><div class="inverse">Covoiturage organisé par l’employeur</div>
+     <div class="inverse">Horaires de travail ajustés aux transports</div><div class="inverse">Formation hybride ou site délocalisé</div>
+    </div>
+   </div>
+   <div class="card col12">
+    <h3>3. Comparer les options</h3>
+    <p class="help">Les durées et coûts sont saisis après vérification dans TXIK TXAK, SNCF, Google Maps, BlaBlaCar Daily, auprès du TAD ou d’un partenaire.</p>
+    <table class="mode-table"><thead><tr><th>Possible</th><th>Option</th><th>Durée min</th><th>Coût €</th><th>Correspondances</th><th>Fiabilité 1–5</th><th>Écologie 1–5</th><th>Score</th></tr></thead><tbody id="modeRows"></tbody></table>
+    <button class="primary" id="calculateBtn" style="margin-top:12px">Calculer et argumenter le meilleur choix</button>
+    <div id="decisionText" class="tipbox" style="margin-top:12px;display:none"></div>
+   </div>
+  </div>
+ </div></div>
+</section>
+
+<section id="share" class="panel">
+ <div class="workspace"><div class="wrap">
+  <div class="hero"><h2>Créer un réseau de soutien sans exposer les personnes</h2><p>Les jeunes identifient les ressources informelles de leur territoire : covoiturage, vélo disponible, connaissance d’un itinéraire, hébergement temporaire, accompagnement au premier trajet ou information sur des horaires.</p></div>
+  <div class="grid">
+   <div class="card col6">
+    <h3>Ajouter une ressource du groupe</h3>
+    <div class="privacy"><strong>Protection :</strong> pour une ressource personnelle, indiquer seulement la commune ou un point de rendez-vous public. Ne jamais publier une adresse privée, un numéro personnel ou les horaires d’absence d’une personne.</div>
+    <div class="field" style="margin-top:12px"><label>Nom de la ressource</label><input id="cTitle" placeholder="Ex. trajet partagé Hasparren → Bayonne"></div>
+    <div class="row"><div class="field"><label>Type</label><select id="cType"><option>Covoiturage</option><option>Vélo / équipement</option><option>Accompagnement au premier trajet</option><option>Hébergement temporaire</option><option>Bon plan / information</option><option>Mobilité inversée</option></select></div>
+    <div class="field"><label>Commune ou lieu public</label><input id="cTown" placeholder="Ex. gare, mairie, parking-relais"></div></div>
+    <div class="field"><label>Description et conditions</label><textarea id="cDesc" rows="4" placeholder="Quand ? Pour qui ? Quelles limites ? Qui vérifie ?"></textarea></div>
+    <label class="switchline"><input type="checkbox" id="cChecked"> La ressource a été vérifiée par le groupe ou un professionnel</label>
+    <button class="primary" id="addContribution" style="margin-top:12px">Ajouter au réseau local</button>
+   </div>
+   <div class="card col6">
+    <h3>Ressources partagées dans ce navigateur</h3>
+    <p class="help">Ce prototype fonctionne sans serveur : les contributions restent sur cet appareil. Elles peuvent être exportées puis validées avant publication dans une version collective.</p>
+    <div class="contrib-list" id="contribList"></div>
+    <button class="secondary" id="clearContrib">Effacer les contributions locales</button>
+   </div>
+   <div class="card col12">
+    <h3>Questions de coopération</h3>
+    <div class="resource-list">
+     <div class="res-card"><h4>Que puis-je partager ?</h4><p>Une information, une compétence numérique, un accompagnement, un trajet, un équipement ou un contact institutionnel.</p></div>
+     <div class="res-card"><h4>Quelles règles fixer ?</h4><p>Consentement, ponctualité, participation aux frais, droit de refuser, solution de secours et rôle du professionnel.</p></div>
+     <div class="res-card"><h4>Comment rendre durable ?</h4><p>Vérifier régulièrement, supprimer les données obsolètes, valoriser les contributeurs et transmettre les bons plans.</p></div>
+    </div>
+   </div>
+  </div>
+ </div></div>
+</section>
+
+<section id="workshop" class="panel">
+ <div class="workspace"><div class="wrap">
+  <div class="hero"><h2>Atelier « IMPULS' TA MOB » – 1 h 30</h2><p>Un format participatif combinant connaissance du territoire, résolution de problème, expérimentation numérique, coopération et prise de décision.</p></div>
+  <div class="steps">
+   <div class="step"><strong>1</strong><h3>Se situer · 10 min</h3><p>Placer son lieu de vie et ses destinations habituelles. Identifier les obstacles et les ressources déjà connues.</p></div>
+   <div class="step"><strong>2</strong><h3>Explorer · 15 min</h3><p>Par équipes, retrouver trois portes d’entrée et expliquer à quoi elles servent.</p></div>
+   <div class="step"><strong>3</strong><h3>Défi trajet · 30 min</h3><p>Résoudre un scénario emploi/formation et renseigner la grille multicritère.</p></div>
+   <div class="step"><strong>4</strong><h3>Partager · 20 min</h3><p>Ajouter les ressources du groupe, négocier des règles de solidarité et chercher une mobilité inversée.</p></div>
+   <div class="step"><strong>5</strong><h3>Décider · 15 min</h3><p>Présenter le choix, son coût, son plan B et la première démarche à accomplir.</p></div>
+  </div>
+  <div class="card" style="margin-top:16px">
+   <h3>Life skills mobilisées</h3>
+   <div class="life"><span>Résolution de problème</span><span>Prise de décision</span><span>Coopération</span><span>Communication</span><span>Autonomie</span><span>Gestion du budget</span><span>Gestion du temps</span><span>Compétences numériques</span><span>Confiance en soi</span><span>Connaissance du territoire</span></div>
+  </div>
+  <div class="card" style="margin-top:16px">
+   <h3>Banque de ressources intégrée</h3>
+   <div class="field"><input id="resourceSearch" placeholder="Filtrer les 49 ressources…"></div>
+   <div class="resource-list" id="resourceCards"></div>
+  </div>
+ </div></div>
+</section>
+</main>
+
+<div class="notice" id="notice"></div>
+<div class="modal" id="helpModal"><div class="modal-card"><button class="modal-close" id="closeHelp">Fermer</button>
+ <h2>Principes de cette version simplifiée</h2>
+ <ol>
+  <li><strong>Un quiz d’entrée :</strong> l’atelier commence par une activité individuelle ou collective pour faire émerger les représentations et besoins.</li>
+  <li><strong>Une carte centrée sur les structures mobilité :</strong> les guichets généralistes ont été retirés pour rendre visibles les opérateurs, ateliers vélo, services partagés et acteurs de mobilité solidaire.</li>
+  <li><strong>Un défi expérientiel :</strong> les jeunes recherchent les horaires et coûts réels puis expliquent leur décision.</li>
+  <li><strong>Une contribution prudente :</strong> les ressources personnelles sont localisées à la commune ou sur un lieu public.</li>
+  <li><strong>Une base modifiable :</strong> les données peuvent être exportées en JSON/CSV, mises à jour puis réinjectées dans une future version.</li>
+ </ol>
+ <p>Le calcul d’itinéraire complet en temps réel n’est pas intégré : il nécessiterait des API de transport et des accords techniques. Le prototype ouvre les outils adaptés et transforme la comparaison en activité pédagogique.</p>
+</div></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const DB = {"points":[{"id":"velo-txirrindola","name":"Atelier Vélo Txirrind’Ola","category":"Atelier vélo associatif","address":"56 allées Marines, 64100 Bayonne","territory":"BAB","phone":"07 81 50 72 73","email":"contact@txirrindola.org","url":"https://txirrindola.org/","status":"confirmé","note":"Auto-réparation, vélos d’occasion, vélo-école, sensibilisation et prêt de vélos étudiants.","coords":null,"resource_numbers":[50]},{"id":"velo-clavette-boucau","name":"Clavette & Cie – atelier de Boucau","category":"Atelier vélo associatif","address":"8 rue Maurice Perse, 64340 Boucau","territory":"Rive droite / BAB","phone":"06 12 03 12 69","email":"clavettecrew@gmx.fr","url":"https://clavetteclavette.wixsite.com/clavette","status":"confirmé","note":"Co-réparation, vélos et pièces d’occasion, vélo-école, sorties et animations.","coords":null,"resource_numbers":[51]},{"id":"velo-recyclarte","name":"Recycl’Arte","category":"Atelier vélo associatif","address":"18 rue Lekueder, 64700 Hendaye","territory":"Sud Pays Basque","phone":"07 81 94 12 69","email":"animation@recyclarte.org","url":"https://www.recyclarte.org/","status":"confirmé","note":"Ressourcerie, ateliers d’auto-réparation, vélo-école, bourses aux vélos et économie circulaire.","coords":null,"resource_numbers":[52]},{"id":"velo-bizikleta-mauleon","name":"Atelier Bizi’kleta – Collectif souletin","category":"Atelier vélo associatif","address":"10 rue Jean-Baptiste Heugas, 64130 Mauléon-Licharre","territory":"Soule","phone":"06 89 25 88 46","email":"","url":"https://www.collectifsouletin.eus/atelier/bizikleta/","status":"confirmé","note":"Auto-réparation, pièces, outillage et vélos remis en état à bas prix.","coords":null,"resource_numbers":[53]},{"id":"velo-jaune-urrugne","name":"Atelier Vélo Jaune","category":"Service vélo de proximité","address":"2 rue Paul Gelos, Kechiloa, 64122 Urrugne","territory":"Sud Pays Basque","phone":"06 84 38 67 92","email":"","url":"https://www.tourisme64.com/activites/urrugne/ASCAQU064V5C2IQN-atelier-velo-jaune/","status":"confirmé","note":"Réparation et entretien, vélos neufs et d’occasion, location de vélos musculaires et espace café.","coords":null,"resource_numbers":[54]},{"id":"atelier-bizikleta-sjl","name":"L’Atelier Bizikleta","category":"Service vélo de proximité","address":"12 boulevard Thiers, 64500 Saint-Jean-de-Luz","territory":"Sud Pays Basque","phone":"09 54 60 94 09","email":"atelierbizi@gmail.com","url":"https://atelier-bizikleta.com/","status":"confirmé","note":"Réparation, entretien, vente et location de vélos musculaires et électriques.","coords":null,"resource_numbers":[55]},{"id":"bizi-bayonne","name":"Bizi! – mobilités actives","category":"Mobilité active / plaidoyer","address":"22 rue des Cordeliers, 64100 Bayonne","territory":"Pays Basque","phone":"05 59 25 65 52","email":"info@bizimugi.eu","url":"https://bizimugi.eu/","status":"confirmé","note":"Éducation populaire, plaidoyer et actions pour le vélo, la marche et les transports collectifs.","coords":null,"resource_numbers":[56]},{"id":"pony-pays-basque","name":"Pony – vélos électriques en libre-service","category":"Vélo en libre-service","address":"10 chemin de la Marouette, 64100 Bayonne","territory":"Littoral","phone":"02 52 33 18 95","email":"aide@getapony.com","url":"https://www.txiktxak.fr/vos-moyens-de-transport-a-la-carte/location-de-velos-en-libre-service-pony/","status":"confirmé","note":"Point de contact de l’opérateur ; les vélos sont répartis sur les zones de stationnement du littoral.","coords":null,"resource_numbers":[17]},{"id":"aupa-leclerc","name":"AUPA Citiz – station Maréchal-Leclerc","category":"Autopartage","address":"1 avenue Maréchal Leclerc, 64100 Bayonne","territory":"BAB","phone":"09 83 61 91 44","email":"aupa@citiz.fr","url":"https://aupa.citiz.coop/","status":"confirmé","note":"Voiture partagée en libre-service sur réservation.","coords":null,"resource_numbers":[15]},{"id":"aupa-ste-ursule","name":"AUPA Citiz – station Sainte-Ursule","category":"Autopartage","address":"7 rue Sainte-Ursule, 64100 Bayonne","territory":"BAB","phone":"09 83 61 91 44","email":"aupa@citiz.fr","url":"https://aupa.citiz.coop/","status":"confirmé","note":"Voiture partagée en libre-service sur réservation.","coords":null,"resource_numbers":[15]},{"id":"hergarai-bizi","name":"Hergarai Bizi – transport solidaire","category":"Mobilité solidaire","address":"Mairie, 64220 Lecumberry","territory":"Vallée d’Hergarai","phone":"","email":"","url":"https://www.hergarai-bizi.fr/hergarai-bizi/","status":"conditions à confirmer","note":"Siège associatif identifié ; vérifier les modalités 2026 du transport solidaire.","coords":null,"resource_numbers":[23]},{"id":"ciel-afpa-bayonne","name":"CIEL – relais mobilité au Village des Solutions","category":"Mobilité inclusive / véhicule","address":"2 chemin de Laharie, 64100 Bayonne","territory":"BAB","phone":"05 59 35 65 51","email":"contact@ciel64.fr","url":"https://ciel64.fr/","status":"accès sur prescription / présence à confirmer","note":"Location sociale et garage solidaire ; confirmer la présence et le lieu de remise avant déplacement.","coords":null,"resource_numbers":[25]},{"id":"tx-bayonne","name":"Agence TXIK TXAK Bayonne","category":"TXIK TXAK","address":"7 rue Lormand, 64100 Bayonne","territory":"BAB","phone":"05 47 75 76 64","email":"","url":"https://www.txiktxak.fr/titres-et-tarifs/les-points-de-vente/","status":"confirmé","note":"","coords":null,"resource_numbers":[4,5,6,7,8,10,11,14,18]},{"id":"tx-biarritz","name":"Agence TXIK TXAK Biarritz","category":"TXIK TXAK","address":"Avenue Louis Barthou, 64200 Biarritz","territory":"BAB","phone":"05 47 75 76 64","email":"","url":"https://www.txiktxak.fr/titres-et-tarifs/les-points-de-vente/","status":"confirmé","note":"","coords":null,"resource_numbers":[4,5,6,7,8,10,11,14,18]},{"id":"tx-sjl","name":"Halte routière / agence TXIK TXAK Saint-Jean-de-Luz","category":"TXIK TXAK","address":"Boulevard du Commandant Passicot, 64500 Saint-Jean-de-Luz","territory":"Sud Pays Basque","phone":"05 47 75 76 64","email":"","url":"https://www.txiktxak.fr/titres-et-tarifs/les-points-de-vente/","status":"confirmé","note":"","coords":null,"resource_numbers":[4,5,6,7,8,10,11,14,18]},{"id":"tx-stpalais","name":"Agence TXIK TXAK Saint-Palais","category":"TXIK TXAK","address":"520 avenue de Navarre, 64120 Saint-Palais","territory":"Amikuze","phone":"05 47 75 76 64","email":"","url":"https://www.txiktxak.fr/titres-et-tarifs/les-points-de-vente/","status":"confirmé","note":"","coords":null,"resource_numbers":[4,5,6,7,8,10,11,14,18,24]},{"id":"conceptcars","name":"Concept’Cars 64","category":"Réparation / véhicule","address":"16 avenue du Docteur Camille Delvaille, ZA Saint-Bernard, 64100 Bayonne","territory":"BAB","phone":"05 59 74 10 15","email":"","url":"https://www.conceptcars64.fr/","status":"confirmé","note":"Self-garage privé : conditions et tarifs à vérifier.","coords":null,"resource_numbers":[26]},{"id":"sol-hasparren","name":"Transport solidaire en Pays de Hasparren","category":"Mobilité solidaire","address":"11 rue Gaskoina, 64240 Hasparren","territory":"Pays de Hasparren","phone":"06 95 14 88 67","email":"","url":"","status":"confirmé","note":"Réservation au moins 48 h avant ; vérifier l’éligibilité et les horaires.","coords":null,"resource_numbers":[21]},{"id":"sol-bidache","name":"Roulez en Pays de Bidache","category":"Mobilité solidaire","address":"1 allée du Parc des Sports, 64520 Bidache","territory":"Pays de Bidache","phone":"05 59 56 05 11","email":"","url":"","status":"confirmé","note":"Service territorial ; réservation préalable.","coords":null,"resource_numbers":[22]},{"id":"sol-amikuze","name":"Roulez en Amikuze","category":"Mobilité solidaire","address":"35 rue du Palais de Justice, 64120 Saint-Palais","territory":"Amikuze","phone":"07 50 57 51 89","email":"","url":"","status":"confirmé","note":"Public et conditions à vérifier avant orientation.","coords":null,"resource_numbers":[24]},{"id":"gare-bayonne","name":"Gare de Bayonne","category":"Gare / intermodalité","address":"Place Pereire, 64100 Bayonne","territory":"BAB","phone":"","email":"","url":"https://www.ter.sncf.com/nouvelle-aquitaine","status":"confirmé","note":"","coords":null,"resource_numbers":[9,10,11,16,19]},{"id":"gare-biarritz","name":"Gare de Biarritz","category":"Gare / intermodalité","address":"Allée du Moura, 64200 Biarritz","territory":"BAB","phone":"","email":"","url":"https://www.ter.sncf.com/nouvelle-aquitaine","status":"confirmé","note":"","coords":null,"resource_numbers":[9,10,11,16,19]},{"id":"gare-sjl","name":"Gare Saint-Jean-de-Luz–Ciboure","category":"Gare / intermodalité","address":"Place de Verdun, 64500 Saint-Jean-de-Luz","territory":"Sud Pays Basque","phone":"","email":"","url":"https://www.ter.sncf.com/nouvelle-aquitaine","status":"confirmé","note":"","coords":null,"resource_numbers":[9,10,11,16,19]},{"id":"gare-hendaye","name":"Gare de Hendaye / Euskotren","category":"Gare / transfrontalier","address":"Boulevard du Général de Gaulle, 64700 Hendaye","territory":"Transfrontalier","phone":"","email":"","url":"https://www.ter.sncf.com/nouvelle-aquitaine","status":"confirmé","note":"","coords":null,"resource_numbers":[9,10,11,12,16,19]},{"id":"gare-cambo","name":"Gare de Cambo-les-Bains","category":"Gare / intermodalité","address":"Avenue de la Gare, 64250 Cambo-les-Bains","territory":"Nive","phone":"","email":"","url":"https://www.ter.sncf.com/nouvelle-aquitaine","status":"confirmé","note":"","coords":null,"resource_numbers":[9,10,11,16,19]},{"id":"gare-ustaritz","name":"Gare d’Ustaritz","category":"Gare / intermodalité","address":"Chemin de la Gare, 64480 Ustaritz","territory":"Nive","phone":"","email":"","url":"https://www.ter.sncf.com/nouvelle-aquitaine","status":"confirmé","note":"","coords":null,"resource_numbers":[9,10,11,16,19]},{"id":"gare-sjpp","name":"Gare de Saint-Jean-Pied-de-Port","category":"Gare / intermodalité","address":"Gare SNCF, 64220 Saint-Jean-Pied-de-Port","territory":"Basse-Navarre","phone":"","email":"","url":"https://www.ter.sncf.com/nouvelle-aquitaine","status":"confirmé","note":"","coords":null,"resource_numbers":[9,10,11,16,19]},{"id":"pr-navarre","name":"Parking-relais Navarre","category":"Parking-relais","address":"Avenue Henri de Navarre, 64100 Bayonne","territory":"BAB","phone":"","email":"","url":"https://www.txiktxak.fr/vos-moyens-de-transport-a-la-carte/les-parkings-relais/","status":"confirmé","note":"","coords":null,"resource_numbers":[14,16]},{"id":"pr-iratty","name":"Parking-relais Halle d’Iraty","category":"Parking-relais","address":"Rue de Pitchot, 64200 Biarritz","territory":"BAB","phone":"","email":"","url":"https://www.txiktxak.fr/vos-moyens-de-transport-a-la-carte/les-parkings-relais/","status":"confirmé","note":"","coords":null,"resource_numbers":[14,16]},{"id":"capb-siege","name":"Communauté Pays Basque / Syndicat des mobilités","category":"Institution / mobilité","address":"15 avenue Maréchal Foch, 64100 Bayonne","territory":"Pays Basque","phone":"05 59 44 72 72","email":"","url":"https://www.communaute-paysbasque.fr/transports","status":"confirmé","note":"","coords":null,"resource_numbers":[18,20]}],"resources":[{"number":4,"title":"Abonnement TXIK TXAK moins de 28 ans","category":"Transport collectif","needs":["bus","budget"],"local_point_ids":["tx-bayonne","tx-biarritz","tx-sjl","tx-stpalais"],"status":"actif","coverage":"Pays Basque","description":"Abonnement jeune sur le réseau TXIK TXAK.","action":"Comparer abonnement mensuel, annuel et fréquence réelle des déplacements.","url":"https://www.txiktxak.fr/titres-et-tarifs/les-abonnements/","caution":"","modes":["bus"]},{"number":5,"title":"Tarification solidaire TXIK TXAK","category":"Transport collectif","needs":["bus","faibles ressources"],"local_point_ids":["tx-bayonne","tx-biarritz","tx-sjl","tx-stpalais"],"status":"actif","coverage":"Pays Basque","description":"Réduction selon quotient familial et situation.","action":"Faire une simulation puis préparer les justificatifs.","url":"https://www.txiktxak.fr/titres-et-tarifs/la-tarification-solidaire/","caution":"","modes":["bus"]},{"number":6,"title":"Pass Liberté TXIK TXAK","category":"Transport collectif","needs":["bus","déplacements occasionnels"],"local_point_ids":["tx-bayonne","tx-biarritz","tx-sjl","tx-stpalais"],"status":"actif","coverage":"Pays Basque","description":"Paiement selon l’usage, adapté aux déplacements ponctuels.","action":"Comparer le coût réel avec un abonnement.","url":"","caution":"","modes":["bus"]},{"number":7,"title":"Transport à la demande TXIK TXAK","category":"Transport collectif","needs":["rural","dernier kilomètre","sans voiture"],"local_point_ids":["tx-bayonne","tx-biarritz","tx-sjl","tx-stpalais"],"status":"actif","coverage":"Pays Basque","description":"Prise en charge dans les communes desservies vers des points de dépose définis.","action":"Tester la desserte de sa commune et réserver au 05 47 75 76 64.","url":"https://www.txiktxak.fr/vos-moyens-de-transport-a-la-carte/le-transport-a-la-demande/","caution":"","modes":["TAD","bus"]},{"number":8,"title":"Transport de personnes à mobilité réduite TXIK TXAK","category":"Handicap","needs":["PMR","porte-à-porte"],"local_point_ids":["tx-bayonne","tx-biarritz","tx-sjl","tx-stpalais"],"status":"actif","coverage":"Pays Basque","description":"Service adapté, sous conditions d’inscription et de territoire.","action":"Vérifier l’éligibilité et anticiper la réservation.","url":"","caution":"","modes":["TPMR"]},{"number":9,"title":"TER Nouvelle-Aquitaine – tarifs jeunes et solidaires","category":"Train","needs":["longue distance","emploi","formation"],"local_point_ids":["gare-bayonne","gare-biarritz","gare-sjl","gare-hendaye","gare-cambo","gare-ustaritz","gare-sjpp"],"status":"actif","coverage":"Pays Basque","description":"Billets jeunes, abonnements et Carte Solidaire pour les axes ferroviaires.","action":"Identifier la gare la plus proche et le premier/dernier train compatible.","url":"https://www.ter.sncf.com/nouvelle-aquitaine","caution":"","modes":["train"]},{"number":10,"title":"Cars régionaux Nouvelle-Aquitaine","category":"Transport collectif","needs":["rural","interurbain"],"local_point_ids":["tx-bayonne","tx-biarritz","tx-sjl","tx-stpalais","gare-bayonne","gare-biarritz","gare-sjl","gare-hendaye","gare-cambo","gare-ustaritz","gare-sjpp"],"status":"actif","coverage":"Pays Basque","description":"Lignes régionales et tarifs jeunes/solidaires.","action":"Comparer avec TAD, bus TXIK TXAK et train.","url":"","caution":"","modes":["car"]},{"number":11,"title":"Abonnement combiné TXIK TXAK + TER","category":"Intermodalité","needs":["bus+train","trajet régulier"],"local_point_ids":["tx-bayonne","tx-biarritz","tx-sjl","tx-stpalais","gare-bayonne","gare-biarritz","gare-sjl","gare-hendaye","gare-cambo","gare-ustaritz","gare-sjpp"],"status":"actif","coverage":"Pays Basque","description":"Combinaison d’un trajet TER et du réseau urbain/interurbain.","action":"Calculer le coût mensuel domicile–gare–destination.","url":"","caution":"","modes":["bus","train"]},{"number":12,"title":"Euskotren / Topo / Euskopass","category":"Transfrontalier","needs":["Espagne","Irun","Saint-Sébastien"],"local_point_ids":["gare-hendaye"],"status":"actif","coverage":"Pays Basque","description":"Liaison transfrontalière depuis Hendaye.","action":"Vérifier la correspondance SNCF–Euskotren et le dernier retour.","url":"https://www.euskotren.eus/","caution":"","modes":["train"]},{"number":13,"title":"Prise en charge des abonnements par l’employeur","category":"Emploi","needs":["salarié","alternant","budget"],"local_point_ids":[],"status":"actif","coverage":"Pays Basque","description":"L’employeur prend en charge une partie des abonnements de transport domicile–travail.","action":"Demander la procédure au service RH ou à l’employeur.","url":"","caution":"La ressource est liée au lieu de travail, pas à un guichet unique.","modes":[]},{"number":14,"title":"BlaBlaCar Daily / covoiturage du quotidien","category":"Mobilité partagée","needs":["covoiturage","zones d’emploi"],"local_point_ids":["tx-bayonne","tx-biarritz","tx-sjl","tx-stpalais","pr-navarre","pr-iratty"],"status":"actif","coverage":"Pays Basque","description":"Mise en relation conducteur–passager pour les trajets réguliers.","action":"Tester les horaires réels et prévoir une solution de secours.","url":"https://www.blablacardaily.com/","caution":"","modes":["covoiturage"]},{"number":15,"title":"AUPA Citiz – autopartage","category":"Mobilité partagée","needs":["permis","voiture ponctuelle"],"local_point_ids":["aupa-leclerc","aupa-ste-ursule"],"status":"actif","coverage":"Pays Basque","description":"Voitures partagées en libre-service, réservables à l’heure ou à la journée.","action":"Créer son compte, vérifier les conditions jeune conducteur et repérer une station disponible.","url":"https://aupa.citiz.coop/","caution":"","modes":["autopartage"]},{"number":16,"title":"Parkings-relais et intermodalité","category":"Intermodalité","needs":["covoiturage","bus","dernier kilomètre"],"local_point_ids":["pr-navarre","pr-iratty","gare-bayonne","gare-biarritz","gare-sjl","gare-hendaye","gare-cambo","gare-ustaritz","gare-sjpp"],"status":"actif","coverage":"Pays Basque","description":"Laisser un véhicule ou organiser un rendez-vous de covoiturage puis poursuivre en transport collectif.","action":"Construire un trajet en deux ou trois étapes.","url":"","caution":"","modes":["voiture","bus","train"]},{"number":17,"title":"Vélos électriques Pony en libre-service","category":"Vélo","needs":["dernier kilomètre","littoral"],"local_point_ids":["pony-pays-basque"],"status":"actif","coverage":"Pays Basque","description":"Vélos électriques en libre-service dans les communes littorales couvertes.","action":"Télécharger l’application, repérer une zone de stationnement et vérifier le coût avant le trajet.","url":"https://www.txiktxak.fr/vos-moyens-de-transport-a-la-carte/location-de-velos-en-libre-service-pony/","caution":"","modes":["vélo"]},{"number":18,"title":"Location longue durée de vélo TXIK TXAK","category":"Vélo","needs":["VAE","test avant achat"],"local_point_ids":["tx-bayonne","tx-biarritz","tx-sjl","tx-stpalais","capb-siege"],"status":"actif","coverage":"Pays Basque","description":"Location temporaire de VAE, vélo cargo ou pliant selon disponibilité.","action":"Identifier le point de retrait et anticiper la réservation.","url":"","caution":"","modes":["vélo"]},{"number":19,"title":"Abris vélos sécurisés","category":"Vélo","needs":["stationnement","intermodalité"],"local_point_ids":["gare-bayonne","gare-biarritz","gare-sjl","gare-hendaye","gare-cambo","gare-ustaritz","gare-sjpp"],"status":"actif","coverage":"Pays Basque","description":"Stationnement sécurisé à proximité de gares et pôles d’échanges.","action":"Repérer l’abri et tester le parcours vélo–gare.","url":"","caution":"","modes":["vélo","train"]},{"number":20,"title":"Aide locale à l’achat d’un VAE","category":"Vélo","needs":["achat","financement"],"local_point_ids":["capb-siege"],"status":"à vérifier","coverage":"Pays Basque","description":"Une aide a existé dans les documents territoriaux, mais son ouverture 2026 n’est pas confirmée.","action":"Vérifier auprès du Syndicat des mobilités avant toute annonce.","url":"","caution":"Ne pas présenter comme une aide active sans confirmation.","modes":[]},{"number":21,"title":"Transport solidaire en Pays de Hasparren","category":"Mobilité solidaire","needs":["rural","isolement"],"local_point_ids":["sol-hasparren"],"status":"actif","coverage":"Pays de Hasparren","description":"Déplacements assurés par des bénévoles sur réservation.","action":"Appeler le référent communal au moins 48 h avant.","url":"","caution":"","modes":["voiture solidaire"]},{"number":22,"title":"Roulez en Pays de Bidache","category":"Mobilité solidaire","needs":["rural","isolement"],"local_point_ids":["sol-bidache"],"status":"actif","coverage":"Pays de Bidache","description":"Transport solidaire entre les communes du Pays de Bidache et certaines destinations.","action":"Réserver à l’avance et vérifier les jours de fonctionnement.","url":"","caution":"","modes":["voiture solidaire"]},{"number":23,"title":"Hergarai Bizi – transport solidaire","category":"Mobilité solidaire","needs":["Basse-Navarre","rural"],"local_point_ids":["hergarai-bizi"],"status":"conditions à confirmer","coverage":"Vallée d’Hergarai","description":"Service associatif de solidarité dans la vallée ; aucune adresse d’accueil 2026 suffisamment vérifiée.","action":"Contacter l’association et vérifier les communes, jours et publics desservis.","url":"https://www.hergarai-bizi.fr/hergarai-bizi/","caution":"Les modalités opérationnelles 2026 doivent être confirmées avant orientation.","modes":[]},{"number":24,"title":"Roulez en Amikuze","category":"Mobilité solidaire","needs":["Amikuze","isolement"],"local_point_ids":["sol-amikuze","tx-stpalais"],"status":"actif","coverage":"Amikuze","description":"Transport solidaire vers Saint-Palais et les services de proximité.","action":"Vérifier que le jeune entre dans le public accepté.","url":"","caution":"","modes":["voiture solidaire"]},{"number":25,"title":"CIEL – location sociale et garage solidaire","category":"Véhicule","needs":["location","prise de poste","réparation"],"local_point_ids":["ciel-afpa-bayonne"],"status":"accès sur prescription / lieux à confirmer","coverage":"Pays Basque","description":"Location ou réparation sociale sur prescription. Les lieux de remise des véhicules au Pays Basque doivent être confirmés lors de la prescription.","action":"Faire établir une prescription puis confirmer le lieu et la date de remise du véhicule.","url":"https://ciel64.fr/","caution":"Le garage principal est à Mourenx ; le relais ou la remise à Bayonne doit être confirmé.","modes":[]},{"number":26,"title":"Concept’Cars 64 – self-garage","category":"Véhicule","needs":["réparation","coût réduit"],"local_point_ids":["conceptcars"],"status":"actif","coverage":"Pays Basque","description":"Atelier privé avec possibilité de self-garage selon prestation.","action":"Demander un devis et vérifier l’assurance/responsabilité.","url":"https://www.conceptcars64.fr/","caution":"","modes":["voiture"]},{"number":27,"title":"Crédit mobilité ADIE","category":"Financement","needs":["achat véhicule","réparation","permis"],"local_point_ids":[],"status":"actif","coverage":"Pays Basque","description":"Microcrédit accompagné pour un besoin lié au projet professionnel.","action":"Évaluer la capacité de remboursement et le coût total.","url":"https://www.adie.org/pour-acheter-un-vehicule-ou-passer-mon-permis/","caution":"C’est un crédit, pas une subvention.","modes":[]},{"number":28,"title":"Microcrédit personnel accompagné","category":"Financement","needs":["permis","véhicule","réparation"],"local_point_ids":[],"status":"actif","coverage":"Pays Basque","description":"Financement pour les personnes exclues du crédit classique avec accompagnement social.","action":"Construire le budget complet : mensualité, assurance, carburant et entretien.","url":"","caution":"Décision après étude du dossier.","modes":[]},{"number":29,"title":"Prêt, don ou achat de véhicule entre particuliers","category":"Réseau de soutien","needs":["entraide","réseau personnel"],"local_point_ids":[],"status":"actif","coverage":"Pays Basque","description":"Solution issue du réseau personnel à sécuriser : contrôle technique, assurance, Crit’Air, entretien.","action":"Utiliser le module « Je partage une ressource » sans publier de données personnelles.","url":"","caution":"Ne jamais afficher publiquement l’adresse personnelle d’un jeune.","modes":[]},{"number":30,"title":"Aide au permis B de la Région Nouvelle-Aquitaine","category":"Permis","needs":["permis","insertion"],"local_point_ids":[],"status":"actif","coverage":"Pays Basque","description":"Aide sous conditions de parcours, ressources et projet professionnel.","action":"Faire vérifier l’éligibilité avant l’inscription ou le paiement.","url":"https://les-aides.nouvelle-aquitaine.fr/jeunesse/aide-au-passage-du-permis-de-conduire-b","caution":"","modes":[]},{"number":31,"title":"Aide au permis de Saint-Jean-de-Luz","category":"Permis","needs":["permis","aide communale"],"local_point_ids":[],"status":"actif","coverage":"Saint-Jean-de-Luz","description":"Aide municipale sous conditions de résidence, ressources et projet.","action":"Vérifier le règlement et constituer le dossier auprès du service jeunesse.","url":"","caution":"","modes":[]},{"number":32,"title":"Permis à un euro par jour","category":"Permis","needs":["prêt à taux zéro","auto-école"],"local_point_ids":[],"status":"actif","coverage":"Pays Basque","description":"Prêt à taux zéro auprès d’une auto-école et d’un établissement partenaires.","action":"Comparer le coût total de la formation et la capacité de remboursement.","url":"","caution":"Le jeune ou son représentant rembourse le prêt.","modes":[]},{"number":33,"title":"Mobilisation du CPF pour le permis","category":"Permis","needs":["CPF","projet professionnel"],"local_point_ids":[],"status":"actif","coverage":"Pays Basque","description":"Mobilisation possible sous conditions liées au statut et au projet professionnel.","action":"Vérifier les droits disponibles et les règles en vigueur avant inscription.","url":"","caution":"","modes":[]},{"number":34,"title":"Fonds d’aide aux jeunes – FAJ","category":"Aide financière","needs":["urgence","insertion","mobilité"],"local_point_ids":[],"status":"actif","coverage":"Pays Basque","description":"Aide subsidiaire et individualisée pour certains besoins de mobilité.","action":"Faire évaluer la situation par un conseiller Mission Locale.","url":"","caution":"Aide non automatique.","modes":[]},{"number":35,"title":"Service national universel – aide au code","category":"Engagement","needs":["code","engagement"],"local_point_ids":[],"status":"actif","coverage":"Pays Basque","description":"Préparation au code et aide limitée selon les règles du dispositif.","action":"Vérifier l’existence et les conditions de la campagne concernée.","url":"","caution":"","modes":[]},{"number":36,"title":"Réserve opérationnelle – aide au permis","category":"Engagement","needs":["permis","réserve"],"local_point_ids":[],"status":"actif","coverage":"Pays Basque","description":"Aide possible pour certains réservistes remplissant les conditions.","action":"Se renseigner auprès du CIRFA et de l’organisme gestionnaire.","url":"","caution":"","modes":[]},{"number":37,"title":"Aides mobilité liées au handicap","category":"Handicap","needs":["adaptation","taxi","transport adapté"],"local_point_ids":[],"status":"actif","coverage":"Pays Basque","description":"Compensation de certains surcoûts liés au handicap pour l’emploi ou la formation.","action":"Articuler Mission Locale, Cap emploi, MDPH et financeur.","url":"","caution":"","modes":[]},{"number":39,"title":"Aides transport des organismes de formation et OPCO","category":"Emploi / formation","needs":["formation","alternance"],"local_point_ids":[],"status":"actif","coverage":"Pays Basque","description":"Prises en charge variables selon la formation, le marché, l’OPCO, le CFA ou l’employeur.","action":"Poser la question avant l’entrée en formation et obtenir une réponse écrite.","url":"","caution":"","modes":[]},{"number":44,"title":"TAKE OFF PRO – stage professionnel en Europe","category":"International","needs":["stage","Europe","Erasmus+"],"local_point_ids":[],"status":"actif","coverage":"Pays Basque","description":"Stage professionnel européen accompagné par la Mission Locale selon les campagnes ouvertes.","action":"Participer à une information collective et vérifier les places.","url":"","caution":"","modes":[]},{"number":45,"title":"Échanges de jeunes Erasmus+","category":"International","needs":["séjour collectif","interculturel"],"local_point_ids":[],"status":"actif","coverage":"Pays Basque","description":"Mobilité collective de courte durée pour découvrir l’Europe et développer des compétences.","action":"Identifier les prochains appels à participation.","url":"","caution":"","modes":[]},{"number":46,"title":"Corps européen de solidarité","category":"International","needs":["volontariat","18-30 ans"],"local_point_ids":[],"status":"actif","coverage":"Pays Basque","description":"Mission de solidarité en France ou à l’étranger avec prise en charge selon le projet.","action":"Préparer le départ et vérifier logement, assurance et indemnités.","url":"","caution":"","modes":[]},{"number":47,"title":"Service civique international","category":"International","needs":["service civique","étranger"],"local_point_ids":[],"status":"actif","coverage":"Pays Basque","description":"Mission indemnisée à l’étranger selon les offres.","action":"Lire précisément les conditions de voyage, logement et restauration.","url":"","caution":"","modes":[]},{"number":48,"title":"OFQJ – mobilité France–Québec","category":"International","needs":["Québec","stage","emploi","entrepreneuriat"],"local_point_ids":[],"status":"actif","coverage":"Pays Basque","description":"Programmes de mobilité professionnelle et citoyenne pour les jeunes adultes.","action":"Choisir le programme adapté et vérifier son financement.","url":"","caution":"","modes":[]},{"number":49,"title":"Projets transfrontaliers et européens MLPB","category":"Transfrontalier","needs":["Irun","Euskadi","emploi","formation"],"local_point_ids":[],"status":"actif","coverage":"Pays Basque","description":"LANEAN, Baserriberri, ROAMING et autres projets selon leur calendrier opérationnel.","action":"Demander quelles opportunités sont ouvertes au moment de l’atelier.","url":"","caution":"","modes":[]},{"number":50,"title":"Txirrind’Ola – atelier participatif et vélo-école","category":"Mobilité douce","needs":["auto-réparation","vélo d’occasion","vélo-école","prêt étudiant","Bicycode"],"local_point_ids":["velo-txirrindola"],"status":"actif","coverage":"Pays Basque","description":"Atelier associatif pour apprendre à entretenir son vélo, acheter un vélo réemployé, reprendre confiance à vélo et développer la pratique quotidienne.","action":"Consulter le calendrier, adhérer si nécessaire et venir avec son vélo ou son besoin.","url":"https://txirrindola.org/","caution":"","modes":["vélo"]},{"number":51,"title":"Clavette & Cie – co-réparation, réemploi et vélo-école","category":"Mobilité douce","needs":["co-réparation","vélo d’occasion","pièces","vélo-école","sorties"],"local_point_ids":["velo-clavette-boucau"],"status":"actif","coverage":"Boucau et rive droite","description":"Atelier associatif proposant apprentissage mécanique, réparation accompagnée, vélos et pièces d’occasion, animations et sorties.","action":"Vérifier les horaires de l’atelier de Boucau et les conditions d’adhésion.","url":"https://clavetteclavette.wixsite.com/clavette","caution":"","modes":["vélo"]},{"number":52,"title":"Recycl’Arte – atelier vélo, ressourcerie et vélo-école","category":"Mobilité douce","needs":["auto-réparation","réemploi","bourse aux vélos","vélo-école","Sud Pays Basque"],"local_point_ids":["velo-recyclarte"],"status":"actif","coverage":"Sud Pays Basque","description":"Association d’économie circulaire proposant des ateliers d’auto-réparation, des actions de remise en selle et des bourses aux vélos.","action":"Consulter l’agenda et contacter l’association pour les ateliers ou stages ouverts.","url":"https://www.recyclarte.org/","caution":"","modes":["vélo"]},{"number":53,"title":"Bizi’kleta – atelier d’auto-réparation en Soule","category":"Mobilité douce","needs":["auto-réparation","outillage","pièces","vélo à bas prix","Soule"],"local_point_ids":["velo-bizikleta-mauleon"],"status":"actif","coverage":"Soule","description":"Atelier du Collectif souletin pour réparer son vélo avec des bénévoles et accéder à des vélos remis en état à prix accessible.","action":"Vérifier la permanence du mercredi ou du dernier samedi du mois.","url":"https://www.collectifsouletin.eus/atelier/bizikleta/","caution":"","modes":["vélo"]},{"number":54,"title":"Atelier Vélo Jaune – réparation, occasion et location","category":"Mobilité douce","needs":["réparation","entretien","vélo d’occasion","location","Urrugne"],"local_point_ids":["velo-jaune-urrugne"],"status":"actif","coverage":"Sud Pays Basque","description":"Entreprise de proximité pour entretenir, réparer, acheter ou louer un vélo, avec un espace café convivial.","action":"Appeler avant de venir pour confirmer le service, le délai ou la disponibilité d’un vélo.","url":"https://www.tourisme64.com/activites/urrugne/ASCAQU064V5C2IQN-atelier-velo-jaune/","caution":"Service marchand : demander le tarif avant intervention.","modes":["vélo"]},{"number":55,"title":"L’Atelier Bizikleta – réparation et location à Saint-Jean-de-Luz","category":"Mobilité douce","needs":["réparation","location","VAE","vélo musculaire","Saint-Jean-de-Luz"],"local_point_ids":["atelier-bizikleta-sjl"],"status":"actif","coverage":"Sud Pays Basque","description":"Atelier professionnel de réparation, vente et location de vélos électriques et musculaires.","action":"Contacter l’atelier pour connaître les disponibilités, tarifs et délais.","url":"https://atelier-bizikleta.com/","caution":"Service marchand : demander le tarif et les conditions de location.","modes":["vélo"]},{"number":56,"title":"Bizi! – mobilisation pour la marche, le vélo et les transports collectifs","category":"Mobilité active","needs":["plaidoyer","participation citoyenne","vélo","marche","transports collectifs"],"local_point_ids":["bizi-bayonne"],"status":"actif","coverage":"Pays Basque","description":"Mouvement citoyen menant des actions, campagnes et temps d’éducation populaire en faveur des mobilités actives et alternatives au tout-voiture.","action":"Consulter les campagnes et événements, puis identifier une manière de participer.","url":"https://bizimugi.eu/","caution":"","modes":["vélo","marche","transport collectif"]}]};
+const colors = {"Atelier vélo associatif":"#d91c68","Service vélo de proximité":"#f29b13","Mobilité active / plaidoyer":"#9ecb3b","Vélo en libre-service":"#42a6d8","Autopartage":"#7257b6","Mobilité inclusive / véhicule":"#c35a33","TXIK TXAK":"#f2b134","Mobilité solidaire":"#cf4e77","Gare / intermodalité":"#1e5e96","Gare / transfrontalier":"#1e5e96","Parking-relais":"#6b7280","Institution / mobilité":"#0f766e","Réparation / véhicule":"#49566c"};
+let map, markerLayer, markers = new Map(), selectedCategory="Toutes";
+const pointMap = Object.fromEntries(DB.points.map(p=>[p.id,p]));
+const resourceMap = Object.fromEntries(DB.resources.map(r=>[r.number,r]));
+
+function notify(msg){const n=document.getElementById("notice");n.textContent=msg;n.style.display="block";setTimeout(()=>n.style.display="none",2600)}
+function statusBadge(status){
+ const c=status==="actif"||status==="confirmé"?"ok":status.includes("vérifier")||status.includes("confirmer")?"warn":"off";
+ return `<span class="badge ${c}">${status}</span>`;
+}
+function markerIcon(category){
+ const color=colors[category]||"#087e8b";
+ return L.divIcon({className:"",html:`<div style="width:20px;height:20px;border-radius:50% 50% 50% 0;background:${color};border:3px solid white;box-shadow:0 2px 7px #0005;transform:rotate(-45deg)"><div style="width:5px;height:5px;border-radius:50%;background:white;margin:5px"></div></div>`,iconSize:[20,20],iconAnchor:[10,19]});
+}
+async function geocode(p){
+ if(p.coords) return p.coords;
+ const key="geo:"+p.address; const cached=localStorage.getItem(key);
+ if(cached) return JSON.parse(cached);
+ try{
+  const res=await fetch("https://api-adresse.data.gouv.fr/search/?limit=1&q="+encodeURIComponent(p.address));
+  const j=await res.json();
+  if(j.features&&j.features[0]){
+   const [lon,lat]=j.features[0].geometry.coordinates; const c=[lat,lon];
+   localStorage.setItem(key,JSON.stringify(c)); return c;
+  }
+ }catch(e){}
+ return null;
+}
+function pointResources(p, includeVerify=false){
+ return (p.resource_numbers||[]).map(n=>resourceMap[n]).filter(Boolean).filter(r=>includeVerify||r.status==="actif");
+}
+function popupHTML(p){
+ const rs=pointResources(p,document.getElementById("showVerify").checked);
+ const dir="https://www.google.com/maps/dir/?api=1&destination="+encodeURIComponent(p.address);
+ return `<div class="popup"><h3>${p.name}</h3><div class="addr">${p.address}<br>${p.territory}</div>
+ <div>${statusBadge(p.status)} <span class="tag">${p.category}</span></div>
+ ${p.note?`<p style="font-size:11px">${p.note}</p>`:""}
+ <strong style="font-size:11px">${rs.length} ressource(s) accessible(s)</strong>
+ <ul>${rs.slice(0,12).map(r=>`<li><b>${r.number}. ${r.title}</b></li>`).join("")}${rs.length>12?`<li>+ ${rs.length-12} autres</li>`:""}</ul>
+ <div class="popup-actions"><a class="smallbtn" target="_blank" rel="noopener" href="${dir}">Itinéraire</a>
+ ${p.url?`<a class="smallbtn alt" target="_blank" rel="noopener" href="${p.url}">Site</a>`:""}
+ ${p.phone?`<a class="smallbtn alt" href="tel:${p.phone.replace(/\s/g,'')}">Appeler</a>`:""}</div></div>`;
+}
+async function initMap(){
+ map=L.map("map",{
+   zoomControl:true,
+   minZoom:8,
+   maxZoom:19,
+   preferCanvas:true
+ }).setView([43.29,-1.25],9);
+
+ // Fond satellite par défaut.
+ const satellite=L.tileLayer(
+   "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+   {
+     maxZoom:19,
+     attribution:"Tiles © Esri"
+   }
+ ).addTo(map);
+
+ // Couche de noms et de routes au-dessus du satellite pour faciliter le repérage.
+ const labels=L.tileLayer(
+   "https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
+   {
+     maxZoom:19,
+     attribution:"Labels © Esri"
+   }
+ ).addTo(map);
+
+ // Variante claire disponible dans le sélecteur.
+ const voyager=L.tileLayer(
+   "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
+   {
+     subdomains:"abcd",
+     maxZoom:20,
+     detectRetina:true,
+     attribution:"© OpenStreetMap contributors © CARTO"
+   }
+ );
+
+ L.control.layers(
+   {
+     "Satellite avec repères":L.layerGroup([satellite,labels]),
+     "Carte claire – villes et routes":voyager
+   },
+   {},
+   {
+     position:"topright",
+     collapsed:false
+   }
+ ).addTo(map);
+
+ // Libellés pédagogiques permanents pour les principaux pôles du territoire.
+ const cityLayer=L.layerGroup().addTo(map);
+ const mainCities=[
+   ["Bayonne",43.4929,-1.4748],
+   ["Anglet",43.4850,-1.5183],
+   ["Biarritz",43.4832,-1.5586],
+   ["Saint-Jean-de-Luz",43.3891,-1.6590],
+   ["Hendaye",43.3585,-1.7744],
+   ["Ustaritz",43.3990,-1.4562],
+   ["Cambo-les-Bains",43.3588,-1.4018],
+   ["Hasparren",43.3843,-1.3040],
+   ["Saint-Palais",43.3280,-1.0330],
+   ["Saint-Jean-Pied-de-Port",43.1632,-1.2380],
+   ["Mauléon-Licharre",43.2242,-0.8878]
+ ];
+ mainCities.forEach(([name,lat,lon])=>{
+   L.marker([lat,lon],{
+     interactive:false,
+     keyboard:false,
+     zIndexOffset:-900,
+     icon:L.divIcon({
+       className:"city-label-wrapper",
+       html:`<span class="city-label">${name}</span>`,
+       iconSize:null,
+       iconAnchor:[0,0]
+     })
+   }).addTo(cityLayer);
+ });
+
+ markerLayer=L.layerGroup().addTo(map);
+ let i=0;
+ for(const p of DB.points){
+  const coords=await geocode(p);
+  if(coords){p._coords=coords; const m=L.marker(coords,{icon:markerIcon(p.category)}).bindPopup(()=>popupHTML(p));
+   markers.set(p.id,m); markerLayer.addLayer(m);}
+  i++; if(i%8===0) await new Promise(r=>setTimeout(r,180));
+ }
+ renderPlaces();
+}
+function categories(){
+ return ["Toutes",...Array.from(new Set(DB.points.map(p=>p.category))).sort()];
+}
+function renderChips(){
+ const c=document.getElementById("categoryChips");c.innerHTML="";
+ categories().forEach(cat=>{const b=document.createElement("button");b.className="chip"+(cat===selectedCategory?" active":"");b.textContent=cat;b.onclick=()=>{selectedCategory=cat;renderChips();renderPlaces()};c.appendChild(b)})
+}
+function matchesSearch(p,q,includeVerify){
+ const rs=pointResources(p,includeVerify);
+ const hay=[p.name,p.address,p.territory,p.category,...rs.flatMap(r=>[r.title,r.category,...r.needs])].join(" ").toLowerCase();
+ return hay.includes(q);
+}
+function renderPlaces(){
+ const q=document.getElementById("searchInput").value.trim().toLowerCase();
+ const includeVerify=document.getElementById("showVerify").checked;
+ markerLayer.clearLayers(); const list=document.getElementById("placeList");list.innerHTML="";
+ let shown=0;
+ DB.points.forEach(p=>{
+  const rs=pointResources(p,includeVerify);
+  const okCat=selectedCategory==="Toutes"||p.category===selectedCategory;
+  const okQ=!q||matchesSearch(p,q,includeVerify);
+  if(okCat&&okQ&&rs.length){
+   shown++;
+   const m=markers.get(p.id);if(m)markerLayer.addLayer(m);
+   const div=document.createElement("div");div.className="place-card";
+   div.innerHTML=`<div class="place-top"><span class="dot" style="background:${colors[p.category]||'#087e8b'}"></span><div><h3>${p.name}</h3><p>${p.address}<br>${p.territory}</p></div><span class="count">${rs.length} res.</span></div>`;
+   div.onclick=()=>{if(p._coords){map.setView(p._coords,14);markers.get(p.id).openPopup()}};
+   list.appendChild(div);
+  }
+ });
+ if(!shown) list.innerHTML='<p style="padding:20px;color:#64748b;font-size:12px">Aucun résultat. Essayez une commune, un besoin ou une catégorie.</p>';
+}
+document.getElementById("searchInput").addEventListener("input",renderPlaces);
+document.getElementById("showVerify").addEventListener("change",()=>{renderPlaces();renderResourceCards()});
+renderChips(); initMap();
+
+document.getElementById("helpBtn").onclick=()=>document.getElementById("helpModal").classList.add("show");
+document.getElementById("closeHelp").onclick=()=>document.getElementById("helpModal").classList.remove("show");
+document.getElementById("helpModal").onclick=e=>{if(e.target.id==="helpModal")e.currentTarget.classList.remove("show")};
+
+// Route challenge
+const modes=[
+ {name:"Transports collectifs",eco:4},{name:"Vélo",eco:5},{name:"Marche",eco:5},
+ {name:"Covoiturage",eco:3},{name:"Autopartage / voiture",eco:1},{name:"TAD + bus/train",eco:4},
+ {name:"Mobilité inversée",eco:5}
+];
+const weightsDef=[["Temps","time"],["Coût","cost"],["Simplicité","simple"],["Fiabilité","reliable"],["Écologie","eco"]];
+const weights=document.getElementById("weights");
+weightsDef.forEach(([lab,key])=>{
+ const d=document.createElement("div");d.className="range-row";d.innerHTML=`<label>${lab}</label><input type="range" min="1" max="5" value="3" id="w-${key}"><b id="v-${key}">3</b>`;
+ weights.appendChild(d);d.querySelector("input").oninput=e=>document.getElementById("v-"+key).textContent=e.target.value;
+});
+const tbody=document.getElementById("modeRows");
+modes.forEach((m,i)=>{
+ const tr=document.createElement("tr");tr.dataset.idx=i;tr.innerHTML=`<td><input type="checkbox" class="possible" checked></td><td><b>${m.name}</b></td>
+ <td><input type="number" class="duration" min="0"></td><td><input type="number" class="cost" min="0" step=".1"></td>
+ <td><input type="number" class="changes" min="0" value="0"></td>
+ <td><select class="reliability">${[1,2,3,4,5].map(x=>`<option ${x===3?'selected':''}>${x}</option>`).join("")}</select></td>
+ <td><select class="eco">${[1,2,3,4,5].map(x=>`<option ${x===m.eco?'selected':''}>${x}</option>`).join("")}</select></td><td class="score">—</td>`;
+ tbody.appendChild(tr);
+});
+function routeLink(mode,start,end){
+ const base="https://www.google.com/maps/dir/?api=1&origin="+encodeURIComponent(start)+"&destination="+encodeURIComponent(end);
+ return base+"&travelmode="+mode;
+}
+document.getElementById("makeLinks").onclick=()=>{
+ const s=document.getElementById("routeStart").value.trim(),e=document.getElementById("routeEnd").value.trim();
+ if(!s||!e){notify("Renseignez le départ et la destination.");return}
+ const box=document.getElementById("routeLinks");
+ box.innerHTML=`
+ <a class="smallbtn" target="_blank" rel="noopener" href="${routeLink("transit",s,e)}">Transport public</a>
+ <a class="smallbtn" target="_blank" rel="noopener" href="${routeLink("bicycling",s,e)}">Vélo</a>
+ <a class="smallbtn" target="_blank" rel="noopener" href="${routeLink("walking",s,e)}">Marche</a>
+ <a class="smallbtn" target="_blank" rel="noopener" href="${routeLink("driving",s,e)}">Voiture</a>
+ <a class="smallbtn alt" target="_blank" rel="noopener" href="https://www.txiktxak.fr/preparez-votre-trajet/itineraires/">TXIK TXAK</a>
+ <a class="smallbtn alt" target="_blank" rel="noopener" href="https://www.ter.sncf.com/nouvelle-aquitaine">TER</a>
+ <a class="smallbtn alt" target="_blank" rel="noopener" href="https://www.blablacardaily.com/">Covoiturage</a>
+ <a class="smallbtn alt" href="tel:0547757664">Réserver le TAD</a>`;
+};
+document.getElementById("calculateBtn").onclick=()=>{
+ const w={};weightsDef.forEach(([l,k])=>w[k]=+document.getElementById("w-"+k).value);
+ const rows=[...tbody.querySelectorAll("tr")];let results=[];
+ rows.forEach((tr,i)=>{
+  tr.classList.remove("winner");const possible=tr.querySelector(".possible").checked;
+  const duration=+tr.querySelector(".duration").value,cost=+tr.querySelector(".cost").value,changes=+tr.querySelector(".changes").value;
+  const rel=+tr.querySelector(".reliability").value,eco=+tr.querySelector(".eco").value;
+  if(!possible||!duration){tr.querySelector(".score").textContent="—";return}
+  const timeScore=Math.max(0,100-duration*1.2),costScore=Math.max(0,100-cost*13),simpleScore=Math.max(0,100-changes*23);
+  const relScore=rel*20,ecoScore=eco*20,total=(timeScore*w.time+costScore*w.cost+simpleScore*w.simple+relScore*w.reliable+ecoScore*w.eco)/(w.time+w.cost+w.simple+w.reliable+w.eco);
+  tr.querySelector(".score").textContent=total.toFixed(0);results.push({i,total,name:modes[i].name,duration,cost,changes});
+ });
+ results.sort((a,b)=>b.total-a.total);const d=document.getElementById("decisionText");
+ if(!results.length){notify("Saisissez au moins une durée pour une option possible.");return}
+ const best=results[0];rows[best.i].classList.add("winner");d.style.display="block";
+ d.innerHTML=`<strong>Option la mieux classée : ${best.name}</strong><br>Score ${best.total.toFixed(0)}/100 · ${best.duration} min · ${best.cost.toFixed(2)} € · ${best.changes} correspondance(s).<br><br><b>À argumenter :</b> pourquoi cette option est-elle réaliste ? Quel est le plan B en cas de retard, d’annulation ou d’indisponibilité ?`;
+};
+
+// Contributions
+function getContrib(){try{return JSON.parse(localStorage.getItem("maptamob-contrib")||"[]")}catch(e){return[]}}
+function saveContrib(a){localStorage.setItem("maptamob-contrib",JSON.stringify(a));renderContrib()}
+function renderContrib(){
+ const a=getContrib(),box=document.getElementById("contribList");
+ box.innerHTML=a.length?a.map((c,i)=>`<div class="contrib"><h4>${c.title}</h4><small>${c.type} · ${c.town} · ${c.checked?"vérifiée":"à vérifier"}</small><p>${c.desc}</p><button class="secondary" onclick="removeContrib(${i})">Supprimer</button></div>`).join(""):'<p class="help">Aucune ressource ajoutée.</p>';
+}
+window.removeContrib=i=>{const a=getContrib();a.splice(i,1);saveContrib(a)};
+document.getElementById("addContribution").onclick=()=>{
+ const c={title:document.getElementById("cTitle").value.trim(),type:document.getElementById("cType").value,town:document.getElementById("cTown").value.trim(),desc:document.getElementById("cDesc").value.trim(),checked:document.getElementById("cChecked").checked,created:new Date().toISOString()};
+ if(!c.title||!c.town){notify("Indiquez un nom et une commune ou un lieu public.");return}
+ const a=getContrib();a.push(c);saveContrib(a);["cTitle","cTown","cDesc"].forEach(id=>document.getElementById(id).value="");document.getElementById("cChecked").checked=false;notify("Ressource ajoutée localement.");
+};
+document.getElementById("clearContrib").onclick=()=>{if(confirm("Effacer les contributions enregistrées sur cet appareil ?"))saveContrib([])};
+renderContrib();
+
+// Resource cards
+function renderResourceCards(){
+ const q=(document.getElementById("resourceSearch").value||"").toLowerCase(),include=document.getElementById("showVerify").checked;
+ const box=document.getElementById("resourceCards");box.innerHTML="";
+ DB.resources.filter(r=>(include||r.status==="actif")&&[r.title,r.category,r.description,r.needs.join(" ")].join(" ").toLowerCase().includes(q)).forEach(r=>{
+  const pts=r.local_point_ids.map(id=>pointMap[id]).filter(Boolean);
+  const d=document.createElement("div");d.className="res-card";d.innerHTML=`<span class="num">RESSOURCE ${r.number}</span> ${statusBadge(r.status)}<h4>${r.title}</h4>
+  <p>${r.description}</p><p><b>Première action :</b> ${r.action}</p>
+  <p><b>Points d’accès :</b> ${pts.length ? pts.slice(0,3).map(p=>p.name).join(" · ") + (pts.length>3?` · +${pts.length-3}`:"") : "non affichés sur la carte pour alléger la lecture"}</p>
+  ${r.caution?`<p style="color:#91413a"><b>Vigilance :</b> ${r.caution}</p>`:""}
+  <div class="res-actions">${r.url?`<a class="smallbtn alt" target="_blank" rel="noopener" href="${r.url}">Source</a>`:""}${pts.length?`<button class="smallbtn" data-res="${r.number}">Voir sur la carte</button>`:""}</div>`;
+  const mapButton=d.querySelector("button[data-res]"); if(mapButton) mapButton.onclick=()=>showResourceOnMap(r); box.appendChild(d);
+ });
+}
+function showResourceOnMap(r){
+ const pts=r.local_point_ids.map(id=>pointMap[id]).filter(p=>p&&p._coords);
+ document.querySelector('[data-tab="explore"]').click();
+ selectedCategory="Toutes";renderChips();document.getElementById("searchInput").value=r.title;renderPlaces();
+ if(pts[0]){map.setView(pts[0]._coords,11);markers.get(pts[0].id).openPopup()}
+}
+document.getElementById("resourceSearch").addEventListener("input",renderResourceCards);renderResourceCards();
+
+// Export
+document.getElementById("exportBtn").onclick=()=>{
+ const payload={exportedAt:new Date().toISOString(),contributions:getContrib(),notes:"Les données institutionnelles de base sont intégrées au fichier source HTML."};
+ const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+ const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="impuls-ta-mob-contributions.json";a.click();URL.revokeObjectURL(a.href);
+};
+</script>
+
+<script>
+(function(){
+ const meta={
+  intro:{index:1,name:'QUIZ D’ENTRÉE'},
+  explore:{index:2,name:'EXPLORER'},
+  challenge:{index:3,name:'DÉFI ITINÉRAIRE'},
+  share:{index:4,name:'RÉSEAU DE SOUTIEN'},
+  workshop:{index:5,name:'MODE ATELIER'}
+ };
+ function syncJourney(tab){
+  const m=meta[tab]||meta.intro;
+  const label=document.getElementById('stepLabel');
+  const name=document.getElementById('stepName');
+  const fill=document.getElementById('progressFill');
+  if(label) label.textContent='ÉTAPE '+m.index+' / 5';
+  if(name) name.textContent=m.name;
+  if(fill) fill.style.width=(m.index*20)+'%';
+ }
+ document.querySelectorAll('.tab').forEach(btn=>
+  btn.addEventListener('click',()=>syncJourney(btn.dataset.tab))
+ );
+ syncJourney('intro');
+})();
+</script>
+
+
+
+<script>
+(function(){
+ const questions=[{"question": "Tu dois être à 8 h 30 à une formation. Quel est le meilleur premier réflexe ?", "answers": ["Regarder uniquement l’heure du premier bus.", "Vérifier tout le trajet aller-retour : départ, marche, correspondances, coût, dernier retour et solution de secours.", "Attendre la veille pour demander à un proche.", "Refuser la formation si tu n’as pas de voiture."], "correct": 1, "explanation": "Un trajet réaliste se prépare dans son ensemble. L’heure d’arrivée ne suffit pas : il faut aussi anticiper le retour, les correspondances, la marche, le coût et un plan B.", "theme": "Planifier un trajet"}, {"question": "Il n’existe pas de bus direct entre ta commune et ton lieu d’emploi. Cela signifie que le trajet est impossible ?", "answers": ["Oui, sans ligne directe il n’existe aucune solution.", "Non : je peux combiner transport à la demande, bus, train, vélo, marche ou covoiturage.", "Oui, sauf si l’employeur vient me chercher.", "Non, mais seulement si j’achète immédiatement une voiture."], "correct": 1, "explanation": "La mobilité repose souvent sur l’intermodalité : plusieurs moyens peuvent être combinés pour réaliser un même déplacement.", "theme": "Combiner les solutions"}, {"question": "Ton vélo a besoin d’une petite réparation et ton budget est limité. Quelle ressource peux-tu rechercher ?", "answers": ["Un atelier vélo participatif ou associatif pour apprendre à réparer avec de l’aide.", "Uniquement un magasin de vélos neufs.", "Jeter le vélo et attendre d’avoir une voiture.", "Continuer à rouler même si le vélo n’est pas sûr."], "correct": 0, "explanation": "Les ateliers vélo participatifs permettent souvent d’apprendre, d’utiliser des outils, de trouver des pièces de réemploi ou un vélo d’occasion.", "theme": "Mobilité douce"}, {"question": "Que signifie « mobilité inversée » ?", "answers": ["Faire le trajet en sens inverse.", "Demander systématiquement à quelqu’un de conduire à ma place.", "Rechercher ce qui peut être rapproché ou adapté : permanence locale, visio, horaires compatibles, formation hybride ou autre lieu de rendez-vous.", "Changer de destination sans prévenir."], "correct": 2, "explanation": "La mobilité inversée questionne l’organisation du service, de l’employeur ou de la formation, au lieu de faire porter toute la contrainte sur le jeune.", "theme": "Mobilité inversée"}, {"question": "Un membre du groupe propose un covoiturage régulier. Quelle manière de l’organiser est la plus sécurisante ?", "answers": ["Publier son adresse personnelle et son numéro sur la carte.", "Fixer un point de rendez-vous public, préciser les règles, obtenir l’accord de chacun et prévoir une solution de secours.", "Monter dans le véhicule sans connaître les horaires ni les conditions.", "Considérer que la personne sera toujours disponible."], "correct": 1, "explanation": "La mobilité partagée nécessite du consentement, des règles claires, un lieu public, de la ponctualité et une alternative en cas d’indisponibilité.", "theme": "Partager en sécurité"}, {"question": "Ton train est supprimé le matin d’un entretien. Quel comportement montre le plus d’autonomie ?", "answers": ["Ne rien faire et ne pas prévenir.", "Utiliser le plan B préparé, prévenir rapidement l’interlocuteur et proposer une nouvelle organisation si nécessaire.", "Abandonner définitivement la démarche.", "Accuser le réseau de transport sans rechercher d’alternative."], "correct": 1, "explanation": "Être autonome ne signifie pas tout maîtriser. Cela signifie anticiper, communiquer et s’adapter lorsqu’un imprévu se présente.", "theme": "Anticiper les imprévus"}, {"question": "La mobilité, c’est uniquement avoir le permis et une voiture.", "answers": ["Vrai.", "Faux : c’est aussi connaître le territoire, utiliser les outils numériques, combiner les modes, gérer son temps et mobiliser son réseau.", "Vrai, sauf dans les grandes villes.", "Faux, mais uniquement parce qu’il existe le vélo."], "correct": 1, "explanation": "La mobilité est une compétence globale : se repérer, chercher une information, décider, anticiper, demander de l’aide et utiliser plusieurs solutions.", "theme": "Développer son autonomie"}, {"question": "Quel est forcément le meilleur trajet vers un emploi ou une formation ?", "answers": ["Le trajet le plus rapide, quelles que soient les autres contraintes.", "Le trajet le moins cher, même s’il est très peu fiable.", "Celui qui est réaliste et durable pour moi en tenant compte du temps, du coût, de la simplicité, de la fiabilité, de la fatigue et du plan B.", "Le trajet choisi par une autre personne."], "correct": 2, "explanation": "Le meilleur trajet n’est pas universel. Il dépend de la situation, des priorités et de la capacité à le reproduire dans la durée.", "theme": "Choisir une solution durable"}];
+ const priorityTips={"Planifier un trajet": "Dans le Défi itinéraire, vérifie l’aller, le retour, le coût, la marche et le dernier transport.", "Combiner les solutions": "Explore les correspondances entre TAD, bus, train, vélo, marche et covoiturage.", "Mobilité douce": "Repère sur la carte l’atelier vélo ou le service de location le plus accessible.", "Mobilité inversée": "Demande ce qui pourrait être rapproché, adapté ou organisé autrement.", "Partager en sécurité": "Définis des règles de covoiturage et utilise uniquement des points de rendez-vous publics.", "Anticiper les imprévus": "Prépare un plan B et les coordonnées de la personne à prévenir.", "Développer son autonomie": "Entraîne-toi à rechercher, vérifier et expliquer toi-même une solution.", "Choisir une solution durable": "Compare plusieurs critères au lieu de choisir uniquement selon la durée."};
+ const storageKey="impuls-ta-mob-native-quiz";
+
+ const startScreen=document.getElementById("nativeQuizStart");
+ const playScreen=document.getElementById("nativeQuizPlay");
+ const resultScreen=document.getElementById("nativeQuizResult");
+ const startButton=document.getElementById("nativeQuizStartButton");
+ const counter=document.getElementById("nativeQuizCounter");
+ const theme=document.getElementById("nativeQuizTheme");
+ const liveScore=document.getElementById("nativeQuizLiveScore");
+ const progress=document.getElementById("nativeQuizProgress");
+ const questionTitle=document.getElementById("nativeQuizQuestion");
+ const answersBox=document.getElementById("nativeQuizAnswers");
+ const feedback=document.getElementById("nativeQuizFeedback");
+ const feedbackTitle=document.getElementById("nativeQuizFeedbackTitle");
+ const feedbackText=document.getElementById("nativeQuizFeedbackText");
+ const nextButton=document.getElementById("nativeQuizNext");
+ const quitButton=document.getElementById("nativeQuizQuit");
+ const restartButton=document.getElementById("nativeQuizRestart");
+ const goMapButton=document.getElementById("nativeQuizGoMap");
+ const needSelect=document.getElementById("nativeQuizNeed");
+
+ let current=0;
+ let score=0;
+ let selectedAnswers=[];
+ let answered=false;
+
+ function showScreen(screen){
+  [startScreen,playScreen,resultScreen].forEach(el=>el.classList.remove("active"));
+  screen.classList.add("active");
+  screen.scrollIntoView({behavior:"smooth",block:"start"});
+ }
+
+ function saveState(completed=false){
+  try{
+   localStorage.setItem(storageKey,JSON.stringify({
+    current,score,selectedAnswers,completed,
+    need:needSelect.value||"",
+    savedAt:new Date().toISOString()
+   }));
+  }catch(e){}
+ }
+
+ function clearState(){
+  try{localStorage.removeItem(storageKey)}catch(e){}
+ }
+
+ function startQuiz(){
+  current=0;
+  score=0;
+  selectedAnswers=[];
+  answered=false;
+  liveScore.textContent="0";
+  showScreen(playScreen);
+  renderQuestion();
+  saveState(false);
+ }
+
+ function renderQuestion(){
+  answered=false;
+  const q=questions[current];
+  counter.textContent=`Question ${current+1} sur ${questions.length}`;
+  theme.textContent=q.theme;
+  liveScore.textContent=score;
+  progress.style.width=`${((current+1)/questions.length)*100}%`;
+  questionTitle.textContent=q.question;
+  answersBox.innerHTML="";
+  feedback.hidden=true;
+  feedback.classList.remove("incorrect");
+  nextButton.disabled=true;
+  nextButton.textContent=current===questions.length-1 ? "Voir mon résultat →" : "Question suivante →";
+
+  q.answers.forEach((answer,index)=>{
+   const button=document.createElement("button");
+   button.type="button";
+   button.className="native-answer";
+   button.innerHTML=`<span class="native-answer-letter">${String.fromCharCode(65+index)}</span>${answer}`;
+   button.addEventListener("click",()=>selectAnswer(index,button));
+   answersBox.appendChild(button);
+  });
+ }
+
+ function selectAnswer(index,button){
+  if(answered) return;
+  answered=true;
+  const q=questions[current];
+  const isCorrect=index===q.correct;
+  selectedAnswers[current]={selected:index,correct:isCorrect,theme:q.theme};
+
+  if(isCorrect){
+   score+=1;
+   button.classList.add("correct");
+   feedbackTitle.textContent="Bon réflexe !";
+  }else{
+   button.classList.add("incorrect");
+   feedback.classList.add("incorrect");
+   feedbackTitle.textContent="Une autre solution est plus sécurisante.";
+  }
+
+  [...answersBox.children].forEach((choice,i)=>{
+   choice.disabled=true;
+   if(i===q.correct && !isCorrect) choice.classList.add("reveal-correct");
+  });
+
+  liveScore.textContent=score;
+  feedbackText.textContent=q.explanation;
+  feedback.hidden=false;
+  nextButton.disabled=false;
+  saveState(false);
+ }
+
+ function nextQuestion(){
+  if(!answered) return;
+  if(current<questions.length-1){
+   current+=1;
+   renderQuestion();
+   saveState(false);
+  }else{
+   renderResult();
+  }
+ }
+
+ function profileFor(value){
+  if(value===questions.length) return {
+   title:"Ambassadeur·rice mobilité",
+   text:"Tu identifies les bons réflexes et tu peux aider le groupe à argumenter ses choix. L’étape suivante consiste à les appliquer à un trajet réel."
+  };
+  if(value>=6) return {
+   title:"Stratège mobilité",
+   text:"Tu disposes déjà de repères solides. L’atelier va t’aider à approfondir les solutions locales et à construire un plan B réaliste."
+  };
+  if(value>=3) return {
+   title:"Explorateur·rice en mouvement",
+   text:"Tu as déjà plusieurs bons réflexes. La carte et le défi itinéraire vont t’aider à élargir tes possibilités et à gagner en autonomie."
+  };
+  return {
+   title:"Découvreur·euse du territoire",
+   text:"Ce quiz ouvre des pistes nouvelles. L’objectif de l’atelier est précisément de découvrir les ressources et de tester les solutions sans jugement."
+  };
+ }
+
+ function renderResult(){
+  const profile=profileFor(score);
+  document.getElementById("nativeQuizFinalScore").textContent=`${score}/${questions.length}`;
+  document.getElementById("nativeQuizProfile").textContent=profile.title;
+  document.getElementById("nativeQuizProfileText").textContent=profile.text;
+
+  const missed=selectedAnswers
+   .filter(item=>item && !item.correct)
+   .map(item=>item.theme);
+  const uniqueMissed=[...new Set(missed)].slice(0,3);
+  const mastered=[...new Set(selectedAnswers.filter(item=>item&&item.correct).map(item=>item.theme))];
+
+  const prioritiesBox=document.getElementById("nativeQuizPriorities");
+  prioritiesBox.innerHTML="";
+
+  if(uniqueMissed.length){
+   uniqueMissed.forEach(themeName=>{
+    const div=document.createElement("div");
+    div.className="native-priority";
+    div.innerHTML=`<strong>${themeName}</strong><span>${priorityTips[themeName]||"Approfondis ce sujet dans la suite de l’atelier."}</span>`;
+    prioritiesBox.appendChild(div);
+   });
+  }else{
+   const div=document.createElement("div");
+   div.className="native-priority";
+   div.innerHTML="<strong>Passer de la connaissance à l’action</strong><span>Choisis maintenant une destination réelle et vérifie qu’une solution est reproductible dans la durée.</span>";
+   prioritiesBox.appendChild(div);
+  }
+
+  if(mastered.length){
+   const div=document.createElement("div");
+   div.className="native-priority";
+   div.innerHTML=`<strong>Ressources déjà mobilisées</strong><span>${mastered.slice(0,4).join(" · ")}</span>`;
+   prioritiesBox.appendChild(div);
+  }
+
+  showScreen(resultScreen);
+  saveState(true);
+ }
+
+ function restartQuiz(){
+  clearState();
+  needSelect.value="";
+  startQuiz();
+ }
+
+ startButton.addEventListener("click",startQuiz);
+ nextButton.addEventListener("click",nextQuestion);
+ quitButton.addEventListener("click",()=>{
+  if(confirm("Revenir au début du quiz ? Le résultat en cours sera effacé.")){
+   clearState();
+   current=0;score=0;selectedAnswers=[];
+   showScreen(startScreen);
+  }
+ });
+ restartButton.addEventListener("click",restartQuiz);
+ needSelect.addEventListener("change",()=>saveState(true));
+ goMapButton.addEventListener("click",()=>{
+  saveState(true);
+  if(window.activateImpulsPanel){
+   window.activateImpulsPanel("explore");
+  }else{
+   location.hash="explore";
+  }
+ });
+
+ // Le quiz démarre toujours sur un écran clair pour les ateliers partagés.
+ showScreen(startScreen);
+})();
+</script>
+
+
+
+<script>
+(function(){
+ const journey={
+   intro:{index:1,name:"QUIZ D’ENTRÉE"},
+   explore:{index:2,name:"EXPLORER"},
+   challenge:{index:3,name:"DÉFI ITINÉRAIRE"},
+   share:{index:4,name:"RÉSEAU DE SOUTIEN"},
+   workshop:{index:5,name:"MODE ATELIER"}
+ };
+
+ function activate(tabId, updateHash){
+   if(!journey[tabId]) tabId="intro";
+
+   document.querySelectorAll(".panel").forEach(panel=>{
+     panel.classList.toggle("active",panel.id===tabId);
+   });
+
+   document.querySelectorAll(".tab[data-tab]").forEach(link=>{
+     const active=link.dataset.tab===tabId;
+     link.classList.toggle("active",active);
+     link.setAttribute("aria-current",active?"page":"false");
+   });
+
+   const state=journey[tabId];
+   const label=document.getElementById("stepLabel");
+   const name=document.getElementById("stepName");
+   const fill=document.getElementById("progressFill");
+   if(label) label.textContent=`ÉTAPE ${state.index} / 5`;
+   if(name) name.textContent=state.name;
+   if(fill) fill.style.width=`${state.index*20}%`;
+
+   if(updateHash && location.hash!=="#"+tabId){
+     location.hash=tabId;
+   }
+
+   if(tabId==="explore"){
+     setTimeout(()=>{
+       try{
+         if(typeof map!=="undefined" && map && map.invalidateSize) map.invalidateSize();
+       }catch(e){}
+     },150);
+   }
+ }
+
+ function fromHash(){
+   const id=(location.hash||"#intro").slice(1);
+   activate(journey[id]?id:"intro",false);
+ }
+
+ document.addEventListener("click",event=>{
+   const link=event.target.closest && event.target.closest("a.tab[data-tab]");
+   if(!link) return;
+   const id=link.dataset.tab;
+   // Le href reste fonctionnel comme solution de secours.
+   activate(id,false);
+ },false);
+
+ window.addEventListener("hashchange",fromHash);
+ if(document.readyState==="loading"){
+   document.addEventListener("DOMContentLoaded",fromHash,{once:true});
+ }else{
+   fromHash();
+ }
+
+ window.activateImpulsPanel=function(id){ activate(id,true); };
+})();
+</script>
+
+</body></html>
